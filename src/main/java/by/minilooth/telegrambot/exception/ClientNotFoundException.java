@@ -1,6 +1,6 @@
 package by.minilooth.telegrambot.exception;
 
-public class ClientNotFoundException extends Throwable {
+public class ClientNotFoundException extends Exception {
     
     private static final long serialVersionUID = 7566804820447654352L;
 

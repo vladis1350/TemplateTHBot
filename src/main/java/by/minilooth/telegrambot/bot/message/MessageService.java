@@ -12,7 +12,7 @@ public class MessageService {
     
     @Autowired private UserService userService;
 
-    protected void updateLastBotMessage(User user, Message message) {
+    protected void updateLastBotMessageId(User user, Message message) {
         user.setLastBotMessageId(message.getMessageId());
         userService.save(user);
     }

@@ -63,7 +63,7 @@ public class ClientUpdateHandler extends UpdateHandler {
                 botContext = ClientBotContext.of(client, update);
                 botState = client.getClientBotState();
 
-                LOGGER.info("[{0} | {1}] Text: {2}", chatId, botState, update.getMessage().getText());
+                LOGGER.info("[{} | {}] Text: {}", chatId, botState, update.getMessage().getText());
 
                 botState.handleText(botContext);
 
@@ -79,7 +79,7 @@ public class ClientUpdateHandler extends UpdateHandler {
             }
         }
         catch (ClientBotStateException ex) {
-            botState = ((ClientBotStateException) ex).getExceptionState().rootState();
+            botState = ex.getExceptionState().rootState();
             botState.enter(botContext);
         }
         finally {

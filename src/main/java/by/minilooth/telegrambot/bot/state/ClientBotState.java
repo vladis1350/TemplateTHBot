@@ -8,7 +8,7 @@ public enum ClientBotState implements BotState<ClientBotState, ClientBotContext>
     Start(true) {
 
         @Override public void enter(ClientBotContext botContext) throws ClientBotStateException {
-            throw new ClientBotStateException("adasd", this);
+            // throw new ClientBotStateException("adasd", this);
         }
 
         @Override public void handleText(ClientBotContext botContext) {
@@ -33,11 +33,11 @@ public enum ClientBotState implements BotState<ClientBotState, ClientBotContext>
         }
 
         @Override public void handleText(ClientBotContext botContext) throws ClientBotStateException {
-            throw new ClientBotStateException("adasd", this);
+            // throw new ClientBotStateException("adasd", this);
         }
 
         @Override public ClientBotState nextState() {
-            return nextState;
+            return EnterFirstname;
         }
 
         @Override public ClientBotState rootState() {
@@ -57,7 +57,7 @@ public enum ClientBotState implements BotState<ClientBotState, ClientBotContext>
         }
 
         @Override public ClientBotState nextState() {
-            return nextState;
+            return EnterSurname;
         }
 
         @Override public ClientBotState rootState() {
@@ -65,7 +65,7 @@ public enum ClientBotState implements BotState<ClientBotState, ClientBotContext>
         }
     },
 
-    EnteSurname(true) {
+    EnterSurname(true) {
         private ClientBotState nextState = null;
 
         @Override public void enter(ClientBotContext botContext) {

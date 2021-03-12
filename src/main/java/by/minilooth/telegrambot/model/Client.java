@@ -42,7 +42,10 @@ public class Client {
     private User user;
 
     public String getTelegramId() {
-        return user.getTelegramId();
+        if (this.user == null) {
+            return null;
+        }
+        return this.user.getTelegramId();
     }
 
 }

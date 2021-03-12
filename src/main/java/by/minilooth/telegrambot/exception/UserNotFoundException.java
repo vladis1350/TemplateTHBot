@@ -1,6 +1,6 @@
 package by.minilooth.telegrambot.exception;
 
-public class UserNotFoundException extends Throwable {
+public class UserNotFoundException extends Exception {
     
     private static final long serialVersionUID = -6869041367993470199L;
 

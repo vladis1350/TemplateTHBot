@@ -40,10 +40,10 @@ public class ClientMessageService extends MessageService {
             try {
                 Message message = messageSender.sendMessage(client.getTelegramId(), clientMessageSource.getMessage("message"), null); 
 
-                updateLastBotMessage(client.getUser(), message);
+                updateLastBotMessageId(client.getUser(), message);
             }
             catch (TelegramApiException ex) {
-                LOGGER.error("Unable to send start message to user: {0}, reason: {1}", client.getTelegramId(), ex.getLocalizedMessage());
+                LOGGER.error("Unable to send start message to user: {}, reason: {}", client.getTelegramId(), ex.getLocalizedMessage());
             }
         }
     }
