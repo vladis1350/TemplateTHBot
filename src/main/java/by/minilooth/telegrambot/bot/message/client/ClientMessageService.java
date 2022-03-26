@@ -1,5 +1,6 @@
 package by.minilooth.telegrambot.bot.message.client;
 
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +28,9 @@ public class ClientMessageService extends MessageService {
     @Autowired private ClientMessageSource clientMessageSource;
     @Autowired private ClientReplyKeyboardMarkupSource clientReplyKeyboardMarkupSource;
 
-    public void sendStartMessage(ClientBotContext clientBotContext) throws ClientNotFoundException {
+    @SneakyThrows
+    public void sendStartMessage(ClientBotContext clientBotContext) {
         Client client = clientBotContext.getClient();
-
-        if (client == null) throw new ClientNotFoundException();
 
         if (botUtils.getUpdateType(clientBotContext.getUpdate()).equals(UpdateType.CALLBACK_QUERY) &&
             !clientBotContext.getUpdate().getMessage().getReplyMarkup().equals(new InlineKeyboardMarkup())) {
@@ -38,7 +38,28 @@ public class ClientMessageService extends MessageService {
         }
         else {
             try {
-                Message message = messageSender.sendMessage(client.getTelegramId(), clientMessageSource.getMessage("message"), null); 
+                Message message = messageSender.sendMessage(client.getTelegramId(), String.format(clientMessageSource.getMessage("startMessage"),client.getUser().getFirstname()), null);
+
+                updateLastBotMessageId(client.getUser(), message);
+            }
+            catch (TelegramApiException ex) {
+                LOGGER.error("Unable to send start message to user: {}, reason: {}", client.getTelegramId(), ex.getLocalizedMessage());
+            }
+        }
+    }
+    @SneakyThrows
+    public void sendMainMenu(ClientBotContext clientBotContext) {
+        Client client = clientBotContext.getClient();
+
+
+
+        if (botUtils.getUpdateType(clientBotContext.getUpdate()).equals(UpdateType.CALLBACK_QUERY) &&
+                !clientBotContext.getUpdate().getMessage().getReplyMarkup().equals(new InlineKeyboardMarkup())) {
+
+        }
+        else {
+            try {
+                Message message = messageSender.sendMessage(client.getTelegramId(), clientMessageSource.getMessage("MainMenu"), null);
 
                 updateLastBotMessageId(client.getUser(), message);
             }
