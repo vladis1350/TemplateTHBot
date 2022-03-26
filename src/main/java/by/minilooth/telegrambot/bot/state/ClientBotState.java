@@ -144,7 +144,7 @@ public enum ClientBotState implements BotState<ClientBotState, ClientBotContext>
     public void handleDocument(ClientBotContext clientBotContext) throws ClientBotStateException {}
 
     @Override
-    public abstract void enter(ClientBotContext clientBotContext) throws ClientBotStateException, ClientNotFoundException;
+    public abstract void enter(ClientBotContext clientBotContext) throws ClientBotStateException;
     
     @Override
     public abstract ClientBotState nextState();
