@@ -16,7 +16,8 @@ import by.minilooth.telegrambot.repositories.UserRepository;
 @Service
 public class UserService {
 
-    @Autowired private UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Transactional
     public void save(User user) {
@@ -29,7 +30,7 @@ public class UserService {
     }
 
     @Transactional
-    public Optional<User> getByTelegramId(String telegramId) {
+    public User getByTelegramId(Long telegramId) {
         return userRepository.findByTelegramId(telegramId);
     }
 
@@ -38,14 +39,14 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public User createUser(Update update, Role role) {
-        User user =  User.builder()
-                         .telegramId(update.getMessage().getFrom().getId().toString())
-                         .firstname(update.getMessage().getFrom().getFirstName())
-                         .lastname(update.getMessage().getFrom().getLastName())
-                         .username(update.getMessage().getFrom().getUserName())
-                         .role(role)
-                         .build();
+    public User createUser(Update update) {
+        User user = User.builder()
+                .telegramId(update.getMessage().getFrom().getId().longValue())
+                .firstname(update.getMessage().getFrom().getFirstName())
+                .lastname(update.getMessage().getFrom().getLastName())
+                .username(update.getMessage().getFrom().getUserName())
+                .role(Role.USER)
+                .build();
 
         this.save(user);
 

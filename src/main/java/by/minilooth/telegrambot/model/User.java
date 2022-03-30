@@ -35,7 +35,7 @@ public class User {
     private Integer id;
 
     @Column(name = "telegram_id")
-    private String telegramId;
+    private Long telegramId;
 
     @Column(name = "firstname")
     private String firstname;
@@ -61,5 +61,13 @@ public class User {
                 joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
                 inverseJoinColumns = {@JoinColumn(name = "client_id", referencedColumnName = "id")})
     private Client client;
+
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinTable( name = "user_admin",
+            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "admin_id", referencedColumnName = "id")})
+    private Admin admin;
 
 }

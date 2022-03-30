@@ -1,51 +1,50 @@
-package by.minilooth.telegrambot.bot.handler.client;
+package by.minilooth.telegrambot.bot.handler.admin;
 
+import by.minilooth.telegrambot.bot.api.UpdateHandler;
+import by.minilooth.telegrambot.bot.context.admin.AdminBotContext;
+import by.minilooth.telegrambot.bot.state.admin.AdminBotState;
+import by.minilooth.telegrambot.exception.AdminBotStateException;
+import by.minilooth.telegrambot.exception.UserNotFoundException;
+import by.minilooth.telegrambot.model.Admin;
+import by.minilooth.telegrambot.model.User;
+import by.minilooth.telegrambot.service.AdminService;
+import by.minilooth.telegrambot.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import by.minilooth.telegrambot.bot.api.UpdateHandler;
-import by.minilooth.telegrambot.bot.context.client.ClientBotContext;
-import by.minilooth.telegrambot.bot.state.client.ClientBotState;
-import by.minilooth.telegrambot.exception.ClientBotStateException;
-import by.minilooth.telegrambot.exception.UserNotFoundException;
-import by.minilooth.telegrambot.model.Client;
-import by.minilooth.telegrambot.model.User;
-import by.minilooth.telegrambot.service.ClientService;
-import by.minilooth.telegrambot.service.UserService;
-
 @Component
-public class ClientUpdateHandler extends UpdateHandler {
+public class AdminUpdateHandler extends UpdateHandler {
     
-    private final static Logger LOGGER = LoggerFactory.getLogger(ClientUpdateHandler.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(AdminUpdateHandler.class);
 
     @Autowired private UserService userService;
-    @Autowired private ClientService clientService;
+    @Autowired private AdminService adminService;
 
-    private void updateState(User user, ClientBotState clientBotState) {
-        if (user != null && user.getClient() != null && clientBotState != null) {
-            user.getClient().setClientBotState(clientBotState);
+    private void updateState(User user, AdminBotState adminBotState) {
+        if (user != null && user.getClient() != null && adminBotState != null) {
+            user.getAdmin().setAdminBotState(adminBotState);
             userService.save(user);
         }
     }
 
     @Override
-    public void processText(Update update) throws ClientBotStateException, UserNotFoundException {
+    public void processText(Update update) throws AdminBotStateException, UserNotFoundException {
         final Long chatId = update.getMessage().getChatId();
-        ClientBotContext botContext = null;
-        ClientBotState botState = null;
+        AdminBotContext botContext = null;
+        AdminBotState botState = null;
 
         User user = userService.getByTelegramId(chatId);
-        Client client = user.getClient();
+        Admin admin = user.getAdmin();
 
         try {
-            if (client == null) {
-                client = clientService.createClient(user);
+            if (admin == null) {
+                admin = adminService.createAdmin(user);
 
-                botContext = ClientBotContext.of(client, update);
-                botState = client.getClientBotState();
+                botContext = AdminBotContext.of(admin, update);
+                botState = admin.getAdminBotState();
 
                 botState.enter(botContext);
                 
@@ -60,8 +59,8 @@ public class ClientUpdateHandler extends UpdateHandler {
                 }
             }
             else {
-                botContext = ClientBotContext.of(client, update);
-                botState = client.getClientBotState();
+                botContext = AdminBotContext.of(admin, update);
+                botState = admin.getAdminBotState();
 
                 LOGGER.info("[{} | {}] Text: {}", chatId, botState, update.getMessage().getText());
 
@@ -78,7 +77,7 @@ public class ClientUpdateHandler extends UpdateHandler {
                 } while (!botState.getIsInputNeeded());
             }
         }
-        catch (ClientBotStateException ex) {
+        catch (AdminBotStateException ex) {
             botState = ex.getExceptionState().rootState();
             botState.enter(botContext);
         }

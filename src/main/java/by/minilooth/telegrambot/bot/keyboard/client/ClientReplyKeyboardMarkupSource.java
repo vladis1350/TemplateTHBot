@@ -17,7 +17,22 @@ public class ClientReplyKeyboardMarkupSource extends ReplyKeyboardMarkupSource {
 
         KeyboardRow firstKeyboardRow = new KeyboardRow();
 
-        firstKeyboardRow.add(new KeyboardButton("Заполнить профиль"));
+        firstKeyboardRow.add(new KeyboardButton("Теория"));
+        firstKeyboardRow.add(new KeyboardButton("Практика"));
+
+        keyboardRows.add(firstKeyboardRow);
+
+        replyKeyboardMarkup.setKeyboard(keyboardRows);
+        return replyKeyboardMarkup;
+    }
+
+    public ReplyKeyboardMarkup getTopicListKeyboard() {
+        ReplyKeyboardMarkup replyKeyboardMarkup = this.createInstance(true, true, false);
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+
+        KeyboardRow firstKeyboardRow = new KeyboardRow();
+
+        firstKeyboardRow.add(new KeyboardButton("Список тем"));
 
         keyboardRows.add(firstKeyboardRow);
 

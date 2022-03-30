@@ -11,7 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import by.minilooth.telegrambot.bot.state.ClientBotState;
+import by.minilooth.telegrambot.bot.state.client.ClientBotState;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,12 +36,18 @@ public class Client {
     @Enumerated(EnumType.ORDINAL)
     private ClientBotState clientBotState;
 
+    @Column(name = "firstName")
+    private String firstName;
+
+    @Column(name = "lastName")
+    private String lastName;
+
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
     private User user;
 
-    public String getTelegramId() {
+    public Long getTelegramId() {
         if (this.user == null) {
             return null;
         }

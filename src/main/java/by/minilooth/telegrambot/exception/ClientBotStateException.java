@@ -1,6 +1,6 @@
 package by.minilooth.telegrambot.exception;
 
-import by.minilooth.telegrambot.bot.state.ClientBotState;
+import by.minilooth.telegrambot.bot.state.client.ClientBotState;
 import lombok.Getter;
 
 public class ClientBotStateException extends Exception {

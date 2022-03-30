@@ -22,48 +22,82 @@ import by.minilooth.telegrambot.util.BotUtils;
 public class ClientMessageService extends MessageService {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ClientMessageService.class);
-    
-    @Autowired private BotUtils botUtils;
-    @Autowired private MessageSender messageSender;
-    @Autowired private ClientMessageSource clientMessageSource;
-    @Autowired private ClientReplyKeyboardMarkupSource clientReplyKeyboardMarkupSource;
 
-    @SneakyThrows
+    @Autowired
+    private BotUtils botUtils;
+    @Autowired
+    private MessageSender messageSender;
+    @Autowired
+    private ClientMessageSource clientMessageSource;
+    @Autowired
+    private ClientReplyKeyboardMarkupSource clientReplyKeyboardMarkupSource;
+
     public void sendStartMessage(ClientBotContext clientBotContext) {
         Client client = clientBotContext.getClient();
 
         if (botUtils.getUpdateType(clientBotContext.getUpdate()).equals(UpdateType.CALLBACK_QUERY) &&
-            !clientBotContext.getUpdate().getMessage().getReplyMarkup().equals(new InlineKeyboardMarkup())) {
+                !clientBotContext.getUpdate().getMessage().getReplyMarkup().equals(new InlineKeyboardMarkup())) {
 
-        }
-        else {
+        } else {
             try {
-                Message message = messageSender.sendMessage(client.getTelegramId(), String.format(clientMessageSource.getMessage("startMessage"),client.getUser().getFirstname()), null);
+                Message message = messageSender.sendMessage(client.getTelegramId().toString(),
+                        String.format(clientMessageSource.getMessage("startMessage"), client.getUser().getFirstname()), null);
 
                 updateLastBotMessageId(client.getUser(), message);
-            }
-            catch (TelegramApiException ex) {
+            } catch (TelegramApiException ex) {
                 LOGGER.error("Unable to send start message to user: {}, reason: {}", client.getTelegramId(), ex.getLocalizedMessage());
             }
         }
     }
-    @SneakyThrows
-    public void sendMainMenu(ClientBotContext clientBotContext) {
+
+    public void sendFirstNameMessage(ClientBotContext clientBotContext) {
         Client client = clientBotContext.getClient();
-
-
 
         if (botUtils.getUpdateType(clientBotContext.getUpdate()).equals(UpdateType.CALLBACK_QUERY) &&
                 !clientBotContext.getUpdate().getMessage().getReplyMarkup().equals(new InlineKeyboardMarkup())) {
 
-        }
-        else {
+        } else {
             try {
-                Message message = messageSender.sendMessage(client.getTelegramId(), clientMessageSource.getMessage("MainMenu"), null);
+                Message message = messageSender.sendMessage(client.getTelegramId().toString(), clientMessageSource.getMessage("enterFirstName"), null);
 
                 updateLastBotMessageId(client.getUser(), message);
+            } catch (TelegramApiException ex) {
+                LOGGER.error("Unable to send start message to user: {}, reason: {}", client.getTelegramId(), ex.getLocalizedMessage());
             }
-            catch (TelegramApiException ex) {
+        }
+    }
+
+    public void sendLastNameMessage(ClientBotContext clientBotContext) {
+        Client client = clientBotContext.getClient();
+
+        if (botUtils.getUpdateType(clientBotContext.getUpdate()).equals(UpdateType.CALLBACK_QUERY) &&
+                !clientBotContext.getUpdate().getMessage().getReplyMarkup().equals(new InlineKeyboardMarkup())) {
+
+        } else {
+            try {
+                Message message = messageSender.sendMessage(client.getTelegramId().toString(), clientMessageSource.getMessage("enterLastName"), null);
+
+                updateLastBotMessageId(client.getUser(), message);
+            } catch (TelegramApiException ex) {
+                LOGGER.error("Unable to send start message to user: {}, reason: {}", client.getTelegramId(), ex.getLocalizedMessage());
+            }
+        }
+    }
+
+    @SneakyThrows
+    public void sendMainMenu(ClientBotContext clientBotContext) {
+        Client client = clientBotContext.getClient();
+
+        if (botUtils.getUpdateType(clientBotContext.getUpdate()).equals(UpdateType.CALLBACK_QUERY) &&
+                !clientBotContext.getUpdate().getMessage().getReplyMarkup().equals(new InlineKeyboardMarkup())) {
+
+        } else {
+            try {
+                Message message = messageSender.sendMessage(client.getTelegramId().toString(),
+                        clientMessageSource.getMessage("MainMenu"), clientReplyKeyboardMarkupSource.getTopicListKeyboard());
+
+                updateLastBotMessageId(client.getUser(), message);
+            } catch (TelegramApiException ex) {
                 LOGGER.error("Unable to send start message to user: {}, reason: {}", client.getTelegramId(), ex.getLocalizedMessage());
             }
         }

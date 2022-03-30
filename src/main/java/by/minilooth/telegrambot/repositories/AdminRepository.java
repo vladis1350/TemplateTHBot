@@ -1,10 +1,10 @@
 package by.minilooth.telegrambot.repositories;
 
-import by.minilooth.telegrambot.model.User;
+import by.minilooth.telegrambot.model.Admin;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Integer> {
-    public User findByTelegramId(Long telegramId);
+public interface AdminRepository extends JpaRepository<Admin, Long> {
+
 }

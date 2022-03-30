@@ -1,7 +1,9 @@
 package by.minilooth.telegrambot.model.enums;
 
 public enum Role {
-    CLIENT("user");
+    CLIENT("client"),
+    USER("user"),
+    ADMIN("admin");
 
     private String deepLink;
 
