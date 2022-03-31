@@ -4,6 +4,7 @@ public enum Emoji {
     ARROW_RIGHT(":arrow_right:"),
     ARROW_LEFT(":arrow_left:"),
     ARROW_DOWN(":arrow_down:"),
+    CROSS(":x:"),
     WHITE_CHECK_MARK(":white_check_mark:");
 
     private String alias;

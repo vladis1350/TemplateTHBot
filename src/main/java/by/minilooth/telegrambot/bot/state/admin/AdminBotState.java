@@ -4,11 +4,10 @@ import by.minilooth.telegrambot.bot.api.BotState;
 import by.minilooth.telegrambot.bot.context.admin.AdminBotContext;
 import by.minilooth.telegrambot.bot.message.admin.AdminMessageService;
 import by.minilooth.telegrambot.exception.AdminBotStateException;
+import by.minilooth.telegrambot.model.Admin;
+import by.minilooth.telegrambot.model.Theory;
 import by.minilooth.telegrambot.model.Topic;
-import by.minilooth.telegrambot.service.PracticeAnswerService;
-import by.minilooth.telegrambot.service.PracticeService;
-import by.minilooth.telegrambot.service.TheoryService;
-import by.minilooth.telegrambot.service.TopicService;
+import by.minilooth.telegrambot.service.*;
 import com.vdurmont.emoji.EmojiParser;
 import lombok.Setter;
 
@@ -77,15 +76,19 @@ public enum AdminBotState implements BotState<AdminBotState, AdminBotContext> {
         @Override
         public void handleText(AdminBotContext adminBotContext) {
             String topicName = adminBotContext.getUpdate().getMessage().getText();
+
+            Admin admin = adminBotContext.getAdmin();
             Topic topic = topicService.createTopic(topicName);
             if (topic != null) {
-//                adminMessageService.sendTopicSuccessfullyAddedMessage(adminBotContext);
+                admin.setCurrentTopic(topic);
+                adminService.save(admin);
+                adminMessageService.sendTopicSuccessfullyAddedMessage(adminBotContext, topic);
             }
         }
 
         @Override
         public AdminBotState nextState() {
-            return GetTopicList;
+            return EnterTheory;
         }
 
         @Override
@@ -106,15 +109,16 @@ public enum AdminBotState implements BotState<AdminBotState, AdminBotContext> {
         @Override
         public void handleText(AdminBotContext adminBotContext) {
             String theoryText = adminBotContext.getUpdate().getMessage().getText();
-//            Topic topic = topicService.createTopic(topicName);
-//            if (topic != null) {
-//                adminMessageService.sendTopicSuccessfullyAddedMessage(adminBotContext);
-//            }
+            Admin admin = adminBotContext.getAdmin();
+            Theory theory = theoryService.createTheory(admin.getCurrentTopic(), theoryText);
+            if (theory != null) {
+                adminMessageService.sendTheorySuccessfullyAddedMessage(adminBotContext);
+            }
         }
 
         @Override
         public AdminBotState nextState() {
-            return GetTopicList;
+            return MainMenu;
         }
 
         @Override
@@ -237,7 +241,7 @@ public enum AdminBotState implements BotState<AdminBotState, AdminBotContext> {
     @Setter
     private static PracticeAnswerService practiceAnswerService;
 
-//    @Setter
-//    private AdminService adminService;
+    @Setter
+    private static AdminService adminService;
 
 }

@@ -39,7 +39,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        final Long chatId = getTelegramId(update);
+        final String chatId = getTelegramId(update);
 
         User user = userService.getByTelegramId(chatId);
 
@@ -50,11 +50,11 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    private Long getTelegramId(Update update) {
+    private String getTelegramId(Update update) {
         if (update.hasMessage()) {
-            return update.getMessage().getChatId();
+            return update.getMessage().getChatId().toString();
         } else if (update.hasCallbackQuery()) {
-            return update.getCallbackQuery().getFrom().getId().longValue();
+            return update.getCallbackQuery().getFrom().getId().toString();
         }
         return null;
     }
@@ -76,7 +76,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
-    private void register(Long chatId, Update update) {
+    private void register(String chatId, Update update) {
         User user = userService.createUser(update);
 
         if (update.getMessage().getText().endsWith(ADMIN_DEEP_LINK)) {

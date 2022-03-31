@@ -32,7 +32,7 @@ public class AdminUpdateHandler extends UpdateHandler {
 
     @Override
     public void processText(Update update) throws AdminBotStateException, UserNotFoundException {
-        final Long chatId = update.getMessage().getChatId();
+        final String chatId = update.getMessage().getChatId().toString();
         AdminBotContext botContext = null;
         AdminBotState botState = null;
 

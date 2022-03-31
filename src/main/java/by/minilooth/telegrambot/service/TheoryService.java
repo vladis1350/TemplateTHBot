@@ -30,9 +30,10 @@ public class TheoryService {
         return topicRepository.findAll();
     }
 
-    public Theory createTheory(Topic topic) {
+    public Theory createTheory(Topic topic, String theoryText) {
         Theory theory = Theory.builder()
                 .topic(topic)
+                .theoryText(theoryText)
                 .build();
 
         save(theory);

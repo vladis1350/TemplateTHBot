@@ -30,6 +30,11 @@ public class PracticeService {
         return practiceRepository.findAll();
     }
 
+    @Transactional
+    public List<Practice> getAllByTopic(Topic topic) {
+        return practiceRepository.getAllByTopic(topic);
+    }
+
     public Practice createPractice(Topic topic) {
         Practice practice = Practice.builder()
                 .topic(topic)

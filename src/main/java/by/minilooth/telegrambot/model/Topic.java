@@ -31,4 +31,14 @@ public class Topic {
     @OneToMany(mappedBy = "topic", fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE, CascadeType.ALL })
     private Set<Practice> practice;
 
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @OneToMany(mappedBy = "currentTopic", cascade = CascadeType.PERSIST)
+    private Set<Admin> currentAdmins;
+
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @OneToMany(mappedBy = "currentTopic", cascade = CascadeType.PERSIST)
+    private Set<Client> currentClients;
+
 }

@@ -31,4 +31,9 @@ public class Practice {
     @ToString.Exclude
     @OneToMany(mappedBy = "practice", fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE, CascadeType.ALL })
     private Set<PracticeAnswer> practiceAnswers;
+
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @OneToMany(mappedBy = "currentPractice", cascade = CascadeType.PERSIST)
+    private Set<Client> currentClients;
 }

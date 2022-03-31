@@ -1,15 +1,12 @@
 package by.minilooth.telegrambot.bot.api;
 
-import java.io.Serializable;
-
+import by.minilooth.telegrambot.bot.TelegramBot;
+import by.minilooth.telegrambot.model.User;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
-import org.telegram.telegrambots.meta.api.methods.send.SendVideoNote;
-import org.telegram.telegrambots.meta.api.methods.send.SendVoice;
+import org.telegram.telegrambots.meta.api.methods.send.*;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -18,12 +15,15 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
-import by.minilooth.telegrambot.bot.TelegramBot;
+import java.io.Serializable;
+import java.time.Instant;
 
 @Component
+@Slf4j
 public class MessageSender {
-    
+    private final static Long MESSAGE_ACTION_EXPIRATION = 172800L;
     private final static String DEFAULT_PARSE_MODE = "HTML";
 
     @Autowired private TelegramBot telegramBot;
@@ -184,6 +184,36 @@ public class MessageSender {
 
     private Boolean deleteMessage(DeleteMessage deleteMessage) throws TelegramApiException {
         return telegramBot.execute(deleteMessage);
+    }
+
+    public Boolean isMessageExpired(Integer messageDate) {
+        return Instant.now().getEpochSecond() - messageDate >= MESSAGE_ACTION_EXPIRATION;
+    }
+
+    public Boolean deleteMessage(DeleteMessage deleteMessage, Integer messageDate) throws TelegramApiException {
+        if (Instant.now().getEpochSecond() - messageDate < MESSAGE_ACTION_EXPIRATION) {
+            return telegramBot.execute(deleteMessage);
+        }
+        return false;
+    }
+
+    @SneakyThrows
+    public void deleteBotLastMessage(User user) {
+        if (!isMessageExpired(user.getBotLastMessageDate())) {
+            DeleteMessage deleteMessage = new DeleteMessage();
+
+            deleteMessage.setChatId(user.getTelegramId());
+            deleteMessage.setMessageId(user.getBotLastMessageId());
+            try {
+                if (deleteMessage(deleteMessage, user.getBotLastMessageDate())) {
+                    user.setBotLastMessageId(null);
+                    user.setBotLastMessageDate(null);
+                }
+            } catch (TelegramApiRequestException e) {
+                log.error("Error delete message: " + e.getApiResponse());
+            }
+
+        }
     }
 
 }

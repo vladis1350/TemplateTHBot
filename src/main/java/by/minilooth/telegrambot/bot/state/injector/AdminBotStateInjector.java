@@ -40,7 +40,7 @@ public class AdminBotStateInjector implements BotStateInjector<AdminBotState, Ad
     @Override
     public void inject() {
         AdminBotState.setAdminMessageService(adminMessageService);
-//        AdminBotState.setAdminService(adminService);
+        AdminBotState.setAdminService(adminService);
         AdminBotState.setTopicService(topicService);
         AdminBotState.setTheoryService(theoryService);
         AdminBotState.setPracticeService(practiceService);

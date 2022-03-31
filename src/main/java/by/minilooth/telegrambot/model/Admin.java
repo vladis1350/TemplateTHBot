@@ -24,10 +24,16 @@ public class Admin {
 
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
+    @ManyToOne
+    @JoinColumn(name = "CurrentTopicId")
+    private Topic currentTopic;
+
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     @OneToOne(mappedBy = "admin", cascade = CascadeType.ALL)
     private User user;
 
-    public Long getTelegramId() {
+    public String getTelegramId() {
         if (this.user == null) {
             return null;
         }

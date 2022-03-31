@@ -35,7 +35,7 @@ public class User {
     private Integer id;
 
     @Column(name = "telegram_id")
-    private Long telegramId;
+    private String telegramId;
 
     @Column(name = "firstname")
     private String firstname;
@@ -50,9 +50,17 @@ public class User {
     @Enumerated(EnumType.ORDINAL)
     private Role role;
 
-    @Column(name = "last_bot_message_id", nullable = false, columnDefinition = "INT DEFAULT 0")
-    @Builder.Default
-    private Integer lastBotMessageId = 0;
+    @Column(name = "CurrentPage", nullable = false)
+    private Integer currentPage;
+
+    @Column(name = "last_bot_message_id", columnDefinition = "INT DEFAULT 0")
+    private Integer botLastMessageId = 0;
+
+    @Column(name = "BotLastMessageDate")
+    private Integer botLastMessageDate;
+
+    @Column(name = "BotLastMessageEditable", columnDefinition = "TINYINT(1)")
+    private Boolean botLastMessageEditable;
 
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
@@ -69,5 +77,9 @@ public class User {
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "admin_id", referencedColumnName = "id")})
     private Admin admin;
+
+    public Boolean hasLastBotMessage() {
+        return botLastMessageId != null;
+    }
 
 }

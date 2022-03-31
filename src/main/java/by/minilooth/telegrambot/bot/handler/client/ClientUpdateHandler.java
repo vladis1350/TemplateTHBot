@@ -33,7 +33,7 @@ public class ClientUpdateHandler extends UpdateHandler {
 
     @Override
     public void processText(Update update) throws ClientBotStateException, UserNotFoundException {
-        final Long chatId = update.getMessage().getChatId();
+        final String chatId = update.getMessage().getChatId().toString();
         ClientBotContext botContext = null;
         ClientBotState botState = null;
 
@@ -100,8 +100,52 @@ public class ClientUpdateHandler extends UpdateHandler {
     }
 
     @Override
-    public void processCallbackQuery(Update update) {
-        // TODO Auto-generated method stub
+    public void processCallbackQuery(Update update) throws ClientBotStateException {
+        final String chatId = update.getCallbackQuery().getFrom().getId().toString();
+        ClientBotContext botContext = null;
+        ClientBotState botState = null;
+
+        User user = userService.getByTelegramId(chatId);
+        Client client = user.getClient();
+
+        if (client == null) {
+            client = clientService.createClient(user);
+
+            botContext = ClientBotContext.of(client, update);
+            botState = client.getClientBotState();
+
+            botState.enter(botContext);
+
+            while(!botState.getIsInputNeeded()) {
+                if (botState.nextState() != null) {
+                    botState = botState.nextState();
+                    botState.enter(botContext);
+                }
+            }
+        }
+        else {
+            botContext = ClientBotContext.of(client, update);
+            botState = client.getClientBotState();
+
+            LOGGER.info("CallbackQuery received from manager: " + chatId + ", in state: " + botState + ", with data: " + update.getCallbackQuery().getData());
+
+            botState.handleCallbackQuery(botContext);
+
+            do {
+                if (botState.nextState() != null) {
+                    botState = botState.nextState();
+                    botState.enter(botContext);
+                }
+                else {
+                    break;
+                }
+            } while (!botState.getIsInputNeeded());
+        }
+
+        if (user != null && user.getClient() != null) {
+            user.getClient().setClientBotState(botState);
+            userService.save(user);
+        }
 
     }
 

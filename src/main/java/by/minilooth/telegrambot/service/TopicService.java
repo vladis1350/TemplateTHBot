@@ -38,4 +38,8 @@ public class TopicService {
 
         return topic;
     }
+
+    public Topic getTopicById(Long topicId) {
+        return topicRepository.getById(topicId);
+    }
 }

@@ -1,6 +1,7 @@
 package by.minilooth.telegrambot.bot.config;
 
 import by.minilooth.telegrambot.bot.keyboard.admin.AdminReplyKeyboardMarkupSource;
+import by.minilooth.telegrambot.bot.keyboard.client.ClientInlineKeyboardSource;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
@@ -45,6 +46,11 @@ public class BotConfig {
     @Bean
     public AdminReplyKeyboardMarkupSource adminReplyKeyboardMarkupSource() {
         return new AdminReplyKeyboardMarkupSource();
+    }
+
+    @Bean
+    public ClientInlineKeyboardSource clientInlineKeyboardSource() {
+        return new ClientInlineKeyboardSource();
     }
 
 }

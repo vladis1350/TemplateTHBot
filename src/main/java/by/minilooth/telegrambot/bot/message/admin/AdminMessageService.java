@@ -9,6 +9,7 @@ import by.minilooth.telegrambot.bot.keyboard.client.ClientReplyKeyboardMarkupSou
 import by.minilooth.telegrambot.bot.message.MessageService;
 import by.minilooth.telegrambot.model.Admin;
 import by.minilooth.telegrambot.model.Client;
+import by.minilooth.telegrambot.model.Topic;
 import by.minilooth.telegrambot.util.BotUtils;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
@@ -86,6 +87,24 @@ public class AdminMessageService extends MessageService {
         }
     }
 
+    public void sendTopicSuccessfullyAddedMessage(AdminBotContext adminBotContext, Topic topic) {
+        Admin admin = adminBotContext.getAdmin();
+
+        if (botUtils.getUpdateType(adminBotContext.getUpdate()).equals(UpdateType.CALLBACK_QUERY) &&
+                !adminBotContext.getUpdate().getMessage().getReplyMarkup().equals(new InlineKeyboardMarkup())) {
+
+        } else {
+            try {
+                Message message = messageSender.sendMessage(admin.getTelegramId().toString(),
+                        String.format(adminMessageSource.getMessage("sendTopicSuccessfullyAddedMessage"), topic.getName()), adminReplyKeyboardMarkupSource.getMainMenuKeyboard());
+
+                updateLastBotMessageId(admin.getUser(), message);
+            } catch (TelegramApiException ex) {
+                LOGGER.error("Unable to send start message to user: {}, reason: {}", admin.getTelegramId(), ex.getLocalizedMessage());
+            }
+        }
+    }
+
     public void sendMainMenuMessage(AdminBotContext adminBotContext) {
         Admin admin = adminBotContext.getAdmin();
 
@@ -96,6 +115,24 @@ public class AdminMessageService extends MessageService {
             try {
                 Message message = messageSender.sendMessage(admin.getTelegramId().toString(),
                         adminMessageSource.getMessage("MainMenu"), adminReplyKeyboardMarkupSource.getMainMenuKeyboard());
+
+                updateLastBotMessageId(admin.getUser(), message);
+            } catch (TelegramApiException ex) {
+                LOGGER.error("Unable to send start message to user: {}, reason: {}", admin.getTelegramId(), ex.getLocalizedMessage());
+            }
+        }
+    }
+
+    public void sendTheorySuccessfullyAddedMessage(AdminBotContext adminBotContext) {
+        Admin admin = adminBotContext.getAdmin();
+
+        if (botUtils.getUpdateType(adminBotContext.getUpdate()).equals(UpdateType.CALLBACK_QUERY) &&
+                !adminBotContext.getUpdate().getMessage().getReplyMarkup().equals(new InlineKeyboardMarkup())) {
+
+        } else {
+            try {
+                Message message = messageSender.sendMessage(admin.getTelegramId().toString(),
+                        String.format(adminMessageSource.getMessage("sendTheorySuccessfullyAddedMessage"), admin.getCurrentTopic().getName()), adminReplyKeyboardMarkupSource.getMainMenuKeyboard());
 
                 updateLastBotMessageId(admin.getUser(), message);
             } catch (TelegramApiException ex) {

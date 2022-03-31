@@ -14,9 +14,9 @@ import by.minilooth.telegrambot.util.enums.Emoji;
 
 public class InlineKeyboardMarkupSource {
     
-    protected final static Integer ITEMS_PER_PAGE = 8;
-    protected final static Integer START_PAGE = 1;
-    protected final static String CALLBACK_PREFIX = "callback.";
+    public final static Integer ITEMS_PER_PAGE = 8;
+    public final static Integer START_PAGE = 1;
+    public final static String CALLBACK_PREFIX = "callback.";
 
     private final static String PREVIOUS_PAGE_TEXT = EmojiParser.parseToUnicode(Emoji.ARROW_LEFT.getAlias());
     private final static String NEXT_PAGE_TEXT = EmojiParser.parseToUnicode(Emoji.ARROW_RIGHT.getAlias()); 

@@ -1,15 +1,6 @@
 package by.minilooth.telegrambot.model;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import by.minilooth.telegrambot.bot.state.client.ClientBotState;
 import lombok.AllArgsConstructor;
@@ -18,6 +9,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder
@@ -47,7 +41,31 @@ public class Client {
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
     private User user;
 
-    public Long getTelegramId() {
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @ManyToOne
+    @JoinColumn(name = "CurrentTopicId")
+    private Topic currentTopic;
+
+    @Column(name = "number_question")
+    private Integer numberQuestion;
+
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @ManyToOne
+    @JoinColumn(name = "CurrentPracticeId")
+    private Practice currentPractice;
+
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @Builder.Default
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(	name = "client_answer",
+            joinColumns = @JoinColumn(name = "ClientId"),
+            inverseJoinColumns = @JoinColumn(name = "AnswerId"))
+    private Set<PracticeAnswer> answers = new HashSet<>();
+
+    public String getTelegramId() {
         if (this.user == null) {
             return null;
         }

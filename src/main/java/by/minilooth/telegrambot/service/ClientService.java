@@ -13,8 +13,9 @@ import by.minilooth.telegrambot.repositories.ClientRepository;
 
 @Service
 public class ClientService {
-    
-    @Autowired private ClientRepository clientRepository;
+
+    @Autowired
+    private ClientRepository clientRepository;
 
     @Transactional
     public void save(Client client) {
@@ -33,9 +34,10 @@ public class ClientService {
 
     public Client createClient(User user) {
         Client client = Client.builder()
-                              .clientBotState(ClientBotState.getInitialState())
-                              .user(user)
-                              .build();
+                .clientBotState(ClientBotState.getInitialState())
+                .user(user)
+                .numberQuestion(1)
+                .build();
 
         user.setClient(client);
 

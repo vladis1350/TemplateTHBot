@@ -13,7 +13,9 @@ public class MessageService {
     @Autowired private UserService userService;
 
     protected void updateLastBotMessageId(User user, Message message) {
-        user.setLastBotMessageId(message.getMessageId());
+        user.setBotLastMessageId(message.getMessageId());
+        user.setBotLastMessageDate(message.getDate());
+        user.setBotLastMessageEditable(message.getReplyMarkup() != null);
         userService.save(user);
     }
 
