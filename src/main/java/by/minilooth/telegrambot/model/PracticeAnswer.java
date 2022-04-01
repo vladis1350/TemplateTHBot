@@ -39,4 +39,9 @@ public class PracticeAnswer {
             joinColumns = @JoinColumn(name = "AnswerId"),
             inverseJoinColumns = @JoinColumn(name = "ClientId"))
     private Set<Client> clients = new HashSet<>();
+
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @OneToMany(mappedBy = "currentAnswer", cascade = CascadeType.PERSIST)
+    private Set<Admin> currentAdmins;
 }

@@ -36,7 +36,7 @@ public class ClientService {
         Client client = Client.builder()
                 .clientBotState(ClientBotState.getInitialState())
                 .user(user)
-                .numberQuestion(1)
+                .numberQuestion(0)
                 .build();
 
         user.setClient(client);

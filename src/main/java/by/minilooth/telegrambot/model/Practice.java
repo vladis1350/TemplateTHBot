@@ -36,4 +36,9 @@ public class Practice {
     @ToString.Exclude
     @OneToMany(mappedBy = "currentPractice", cascade = CascadeType.PERSIST)
     private Set<Client> currentClients;
+
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @OneToMany(mappedBy = "currentPractice", cascade = CascadeType.PERSIST)
+    private Set<Admin> currentAdmins;
 }

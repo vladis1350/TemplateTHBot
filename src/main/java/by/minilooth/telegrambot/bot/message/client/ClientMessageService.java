@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -21,6 +23,7 @@ import by.minilooth.telegrambot.bot.api.MessageSender;
 import by.minilooth.telegrambot.exception.ClientNotFoundException;
 import by.minilooth.telegrambot.util.BotUtils;
 
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -86,7 +89,7 @@ public class ClientMessageService extends MessageService {
 
                 updateLastBotMessageId(client.getUser(), message);
             } catch (TelegramApiException ex) {
-                LOGGER.error("Unable to send start message to user: {}, reason: {}", client.getTelegramId(), ex.getLocalizedMessage());
+                LOGGER.error("Unable to send sendFirstNameMessage to user: {}, reason: {}", client.getTelegramId(), ex.getLocalizedMessage());
             }
         }
     }
@@ -102,7 +105,7 @@ public class ClientMessageService extends MessageService {
 
                 updateLastBotMessageId(client.getUser(), message);
             } catch (TelegramApiException ex) {
-                LOGGER.error("Unable to send start message to user: {}, reason: {}", client.getTelegramId(), ex.getLocalizedMessage());
+                LOGGER.error("Unable to send sendLastNameMessage to user: {}, reason: {}", client.getTelegramId(), ex.getLocalizedMessage());
             }
         }
     }
@@ -120,7 +123,7 @@ public class ClientMessageService extends MessageService {
 
                 updateLastBotMessageId(client.getUser(), message);
             } catch (TelegramApiException ex) {
-                LOGGER.error("Unable to send start message to user: {}, reason: {}", client.getTelegramId(), ex.getLocalizedMessage());
+                LOGGER.error("Unable to send sendMainMenu to user: {}, reason: {}", client.getTelegramId(), ex.getLocalizedMessage());
             }
         }
     }
@@ -139,14 +142,13 @@ public class ClientMessageService extends MessageService {
 
             updateLastBotMessageId(client.getUser(), message);
         } catch (TelegramApiException ex) {
-            LOGGER.error("Unable to send start message to user: {}, reason: {}", client.getTelegramId(), ex.getLocalizedMessage());
+            LOGGER.error("Unable to send sendTopicList to user: {}, reason: {}", client.getTelegramId(), ex.getLocalizedMessage());
         }
 
     }
 
     public void sendFirstQuestionMessage(ClientBotContext clientBotContext) {
         Client client = clientBotContext.getClient();
-        Topic topic = client.getCurrentTopic();
         Practice practice = client.getCurrentPractice();
 
         if (checkEditableMessage(clientBotContext)) {
@@ -155,24 +157,30 @@ public class ClientMessageService extends MessageService {
         try {
             Message message = null;
             StringBuilder answerText = new StringBuilder();
-            answerText.append(practice.getQuestion());
-            answerText.append(": \n");
-            List<PracticeAnswer> practiceAnswers = practiceAnswerService.getAllByPractice(practice);
-            if (!practiceAnswers.isEmpty()) {
-                for (int i = 0; i < practiceAnswers.size(); i++) {
-                    answerText.append(i + 1).append(". ");
-                    answerText.append(practiceAnswers.get(i).getAnswer());
-                    answerText.append(". \n");
+            if (practice != null) {
+                practiceAnswerService.deleteClientAnswer(client);
+                answerText.append(practice.getQuestion());
+                answerText.append(": \n");
+                List<PracticeAnswer> practiceAnswers = practiceAnswerService.getAllByPractice(practice);
+                if (!practiceAnswers.isEmpty()) {
+                    for (int i = 0; i < practiceAnswers.size(); i++) {
+                        answerText.append(i + 1).append(". ");
+                        answerText.append(practiceAnswers.get(i).getAnswer());
+                        answerText.append(". \n");
+                    }
+                    message = messageSender.sendMessage(client.getTelegramId(),
+                            answerText.toString(), clientInlineKeyboardSource.generateAnswersForSandboxPageableInlineMarkup(practiceAnswers));
                 }
+            } else {
                 message = messageSender.sendMessage(client.getTelegramId(),
-                        answerText.toString(), clientInlineKeyboardSource.generateAnswersForSandboxPageableInlineMarkup(practiceAnswers));
-                updateLastBotMessageId(client.getUser(), message);
+                        clientMessageSource.getMessage("practiceNotFound"), clientReplyKeyboardMarkupSource.getMainMenuKeyboard());
             }
+            updateLastBotMessageId(client.getUser(), message);
         } catch (TelegramApiException ex) {
-            LOGGER.error("Unable to send start message to user: {}, reason: {}", client.getTelegramId(), ex.getLocalizedMessage());
+            LOGGER.error("Unable to send sendFirstQuestionMessage to user: {}, reason: {}", client.getTelegramId(), ex.getLocalizedMessage());
         }
     }
-
+    @SneakyThrows
     public void sendTheoryMessage(ClientBotContext clientBotContext) {
         Client client = clientBotContext.getClient();
         Topic topic = client.getCurrentTopic();
@@ -189,15 +197,22 @@ public class ClientMessageService extends MessageService {
         try {
             Message message = null;
             if (theory != null) {
-                message = messageSender.sendMessage(client.getTelegramId(),
-                        theory.getTheoryText(), clientReplyKeyboardMarkupSource.getMainMenuKeyboard());
+                switch (theory.getMediaType()) {
+                    case TEXT:
+                        message = messageSender.sendMessage(client.getTelegramId(),
+                                theory.getTheoryText(), clientReplyKeyboardMarkupSource.getMainMenuKeyboard());
+                        break;
+                    case DOCUMENT:
+                        message = messageSender.sendDocument(client.getTelegramId(), theory.getCaption(),
+                                new InputFile(botUtils.downloadTelegramFile(theory.getData()), theory.getFilename()), clientReplyKeyboardMarkupSource.getMainMenuKeyboard());
+                }
             } else {
                 message = messageSender.sendMessage(client.getTelegramId(),
                         clientMessageSource.getMessage("theoryNotFound"), clientReplyKeyboardMarkupSource.getMainMenuKeyboard());
             }
             updateLastBotMessageId(client.getUser(), message);
         } catch (TelegramApiException ex) {
-            LOGGER.error("Unable to send start message to user: {}, reason: {}", client.getTelegramId(), ex.getLocalizedMessage());
+            LOGGER.error("Unable to send sendTheoryMessage to user: {}, reason: {}", client.getTelegramId(), ex.getLocalizedMessage());
         }
     }
 
@@ -251,10 +266,10 @@ public class ClientMessageService extends MessageService {
             for (Practice practice : practices) {
                 List<PracticeAnswer> answers = practiceAnswerService.getAllByClientAndPractice(client, practice);
                 if (!answers.isEmpty()) {
-                    resultTest.append("Вопрос: ").append(practice.getQuestion()).append("\n");
+                    resultTest.append("Вопрос: \n").append(practice.getQuestion()).append("\n");
                     for (PracticeAnswer practiceAnswer : answers) {
                         if (practiceAnswer.getIsCorrect()) {
-                            resultTest.append("Ответ: ").append(practiceAnswer.getAnswer())
+                            resultTest.append("Ответ: \n").append(practiceAnswer.getAnswer())
                                     .append(" ").append("✅").append("\n");
                         } else {
                             resultTest.append("Ответ: ").append(practiceAnswer.getAnswer())
@@ -275,7 +290,7 @@ public class ClientMessageService extends MessageService {
 
             updateLastBotMessageId(client.getUser(), message);
         } catch (TelegramApiException ex) {
-            LOGGER.error("Unable to send start message to user: {}, reason: {}", client.getTelegramId(), ex.getLocalizedMessage());
+            LOGGER.error("Unable to send sendResultTest to user: {}, reason: {}", client.getTelegramId(), ex.getLocalizedMessage());
         }
     }
 }

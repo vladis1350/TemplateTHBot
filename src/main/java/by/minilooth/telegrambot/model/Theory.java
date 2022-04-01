@@ -1,5 +1,6 @@
 package by.minilooth.telegrambot.model;
 
+import by.minilooth.telegrambot.util.MediaType;
 import lombok.*;
 
 import javax.persistence.*;
@@ -20,6 +21,19 @@ public class Theory {
 
     @Column(name = "theoryText", columnDefinition = "LONGTEXT")
     private String theoryText;
+
+    @Column(name = "Data", columnDefinition = "LONGTEXT")
+    private String data;
+
+    @Column(name = "Caption", columnDefinition = "LONGTEXT")
+    private String caption;
+
+    @Column(name = "MediaType")
+    @Enumerated(EnumType.ORDINAL)
+    private MediaType mediaType;
+
+    @Column(name = "Filename", columnDefinition = "LONGTEXT")
+    private String filename;
 
     @EqualsAndHashCode.Exclude
     @ToString.Exclude

@@ -25,6 +25,98 @@ public class AdminReplyKeyboardMarkupSource extends ReplyKeyboardMarkupSource {
         return replyKeyboardMarkup;
     }
 
+    public ReplyKeyboardMarkup getPracticeKeyboard() {
+        ReplyKeyboardMarkup replyKeyboardMarkup = this.createInstance(true, true, false);
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+
+        KeyboardRow firstKeyboardRow = new KeyboardRow();
+
+        firstKeyboardRow.add(new KeyboardButton("Практика"));
+        firstKeyboardRow.add(new KeyboardButton("Назад к списку тем"));
+
+        keyboardRows.add(firstKeyboardRow);
+
+        replyKeyboardMarkup.setKeyboard(keyboardRows);
+        return replyKeyboardMarkup;
+    }
+
+    public ReplyKeyboardMarkup getCancelKeyboard() {
+        ReplyKeyboardMarkup replyKeyboardMarkup = this.createInstance(true, true, false);
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+
+        KeyboardRow firstKeyboardRow = new KeyboardRow();
+
+        firstKeyboardRow.add(new KeyboardButton("Отмена"));
+
+        keyboardRows.add(firstKeyboardRow);
+
+        replyKeyboardMarkup.setKeyboard(keyboardRows);
+        return replyKeyboardMarkup;
+    }
+
+    public ReplyKeyboardMarkup getLoadFileKeyboard() {
+        ReplyKeyboardMarkup replyKeyboardMarkup = this.createInstance(true, true, false);
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+
+        KeyboardRow firstKeyboardRow = new KeyboardRow();
+
+        firstKeyboardRow.add(new KeyboardButton("Загрузить файл"));
+
+        keyboardRows.add(firstKeyboardRow);
+
+        replyKeyboardMarkup.setKeyboard(keyboardRows);
+        return replyKeyboardMarkup;
+    }
+
+    public ReplyKeyboardMarkup getAddPracticeKeyboard() {
+        ReplyKeyboardMarkup replyKeyboardMarkup = this.createInstance(true, true, false);
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+
+        KeyboardRow firstKeyboardRow = new KeyboardRow();
+
+        firstKeyboardRow.add(new KeyboardButton("Добавить практику"));
+        firstKeyboardRow.add(new KeyboardButton("Главное меню"));
+
+        keyboardRows.add(firstKeyboardRow);
+
+        replyKeyboardMarkup.setKeyboard(keyboardRows);
+        return replyKeyboardMarkup;
+    }
+
+    public ReplyKeyboardMarkup getAddPracticeAnswerKeyboard() {
+        ReplyKeyboardMarkup replyKeyboardMarkup = this.createInstance(true, true, false);
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+
+        KeyboardRow firstKeyboardRowOne = new KeyboardRow();
+        KeyboardRow firstKeyboardRowTwo = new KeyboardRow();
+
+        firstKeyboardRowOne.add(new KeyboardButton("Добавить вариант ответа"));
+        firstKeyboardRowTwo.add(new KeyboardButton("Завершить добавление ответов"));
+
+        keyboardRows.add(firstKeyboardRowOne);
+        keyboardRows.add(firstKeyboardRowTwo);
+
+        replyKeyboardMarkup.setKeyboard(keyboardRows);
+        return replyKeyboardMarkup;
+    }
+
+    public ReplyKeyboardMarkup getPracticeMenuKeyboard() {
+        ReplyKeyboardMarkup replyKeyboardMarkup = this.createInstance(true, true, false);
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+
+        KeyboardRow firstKeyboardRowOne = new KeyboardRow();
+        KeyboardRow firstKeyboardRowTwo = new KeyboardRow();
+
+        firstKeyboardRowOne.add(new KeyboardButton("Добавить вопрос"));
+        firstKeyboardRowTwo.add(new KeyboardButton("Главное меню"));
+
+        keyboardRows.add(firstKeyboardRowOne);
+        keyboardRows.add(firstKeyboardRowTwo);
+
+        replyKeyboardMarkup.setKeyboard(keyboardRows);
+        return replyKeyboardMarkup;
+    }
+
     public ReplyKeyboardMarkup getTopicListKeyboard() {
         ReplyKeyboardMarkup replyKeyboardMarkup = this.createInstance(true, true, false);
         List<KeyboardRow> keyboardRows = new ArrayList<>();

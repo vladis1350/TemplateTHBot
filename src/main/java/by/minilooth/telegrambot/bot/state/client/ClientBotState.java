@@ -174,6 +174,21 @@ public enum ClientBotState implements BotState<ClientBotState, ClientBotContext>
         }
 
         @Override
+        public void handleText(ClientBotContext botContext) {
+            switch (EmojiParser.removeAllEmojis(botContext.getUpdate().getMessage().getText())) {
+                case "Назад к списку тем":
+                    nextState = GetTopicList;
+                    break;
+                case "Практика":
+                    nextState = AskQuestion;
+                    break;
+                default:
+                    nextState = MainMenu;
+                    break;
+            }
+        }
+
+        @Override
         public void handleCallbackQuery(ClientBotContext botContext) {
             String userAnswer = botContext.getUpdate().getCallbackQuery().getData();
             Topic topic = botContext.getClient().getCurrentTopic();
@@ -232,7 +247,7 @@ public enum ClientBotState implements BotState<ClientBotState, ClientBotContext>
         public void enter(ClientBotContext botContext) {
             clientMessageService.sendResultTest(botContext);
             botContext.getClient().setCurrentPractice(null);
-            botContext.getClient().setNumberQuestion(1);
+            botContext.getClient().setNumberQuestion(0);
         }
 
         @Override
@@ -255,33 +270,6 @@ public enum ClientBotState implements BotState<ClientBotState, ClientBotContext>
         @Override
         public ClientBotState rootState() {
             return Start;
-        }
-    },
-
-    GetPractice(true) {
-        private ClientBotState nextState = null;
-
-        @Override
-        public void enter(ClientBotContext botContext) {
-            clientMessageService.sendFirstQuestionMessage(botContext);
-        }
-
-        @Override
-        public void handleText(ClientBotContext botContext) {
-            String inputText = botContext.getUpdate().getMessage().getText();
-            Client client = botContext.getClient();
-            client.setFirstName(inputText);
-            clientService.save(client);
-        }
-
-        @Override
-        public ClientBotState nextState() {
-            return EnterLastName;
-        }
-
-        @Override
-        public ClientBotState rootState() {
-            return MainMenu;
         }
     },
 

@@ -15,5 +15,6 @@ public interface PracticeAnswerRepository extends JpaRepository<PracticeAnswer, 
 
     List<PracticeAnswer> findAllByClients(Client client);
     List<PracticeAnswer> findAllByClientsAndPractice(Client client, Practice practice);
+    void deleteAllByClientsAndPractice(Client client, Practice practice);
 
 }

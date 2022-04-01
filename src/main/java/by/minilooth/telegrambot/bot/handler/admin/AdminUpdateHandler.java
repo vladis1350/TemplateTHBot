@@ -2,10 +2,13 @@ package by.minilooth.telegrambot.bot.handler.admin;
 
 import by.minilooth.telegrambot.bot.api.UpdateHandler;
 import by.minilooth.telegrambot.bot.context.admin.AdminBotContext;
+import by.minilooth.telegrambot.bot.context.client.ClientBotContext;
 import by.minilooth.telegrambot.bot.state.admin.AdminBotState;
+import by.minilooth.telegrambot.bot.state.client.ClientBotState;
 import by.minilooth.telegrambot.exception.AdminBotStateException;
 import by.minilooth.telegrambot.exception.UserNotFoundException;
 import by.minilooth.telegrambot.model.Admin;
+import by.minilooth.telegrambot.model.Client;
 import by.minilooth.telegrambot.model.User;
 import by.minilooth.telegrambot.service.AdminService;
 import by.minilooth.telegrambot.service.UserService;
@@ -17,14 +20,14 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Component
 public class AdminUpdateHandler extends UpdateHandler {
-    
+
     private final static Logger LOGGER = LoggerFactory.getLogger(AdminUpdateHandler.class);
 
     @Autowired private UserService userService;
     @Autowired private AdminService adminService;
 
     private void updateState(User user, AdminBotState adminBotState) {
-        if (user != null && user.getClient() != null && adminBotState != null) {
+        if (user != null && user.getAdmin() != null && adminBotState != null) {
             user.getAdmin().setAdminBotState(adminBotState);
             userService.save(user);
         }
@@ -47,7 +50,7 @@ public class AdminUpdateHandler extends UpdateHandler {
                 botState = admin.getAdminBotState();
 
                 botState.enter(botContext);
-                
+
                 while(!botState.getIsInputNeeded()) {
                     if (botState.nextState() != null) {
                         botState = botState.nextState();
@@ -100,8 +103,51 @@ public class AdminUpdateHandler extends UpdateHandler {
 
     @Override
     public void processCallbackQuery(Update update) {
-        // TODO Auto-generated method stub
+        final String chatId = update.getCallbackQuery().getFrom().getId().toString();
+        AdminBotContext botContext = null;
+        AdminBotState botState = null;
 
+        User user = userService.getByTelegramId(chatId);
+        Admin admin = user.getAdmin();
+
+        if (admin == null) {
+            admin = adminService.createAdmin(user);
+
+            botContext = AdminBotContext.of(admin, update);
+            botState = admin.getAdminBotState();
+
+            botState.enter(botContext);
+
+            while(!botState.getIsInputNeeded()) {
+                if (botState.nextState() != null) {
+                    botState = botState.nextState();
+                    botState.enter(botContext);
+                }
+            }
+        }
+        else {
+            botContext = AdminBotContext.of(admin, update);
+            botState = admin.getAdminBotState();
+
+            LOGGER.info("CallbackQuery received from admin: " + chatId + ", in state: " + botState + ", with data: " + update.getCallbackQuery().getData());
+
+            botState.handleCallbackQuery(botContext);
+
+            do {
+                if (botState.nextState() != null) {
+                    botState = botState.nextState();
+                    botState.enter(botContext);
+                }
+                else {
+                    break;
+                }
+            } while (!botState.getIsInputNeeded());
+        }
+
+        if (user != null && user.getAdmin() != null) {
+            user.getAdmin().setAdminBotState(botState);
+            userService.save(user);
+        }
     }
 
     @Override
@@ -124,9 +170,48 @@ public class AdminUpdateHandler extends UpdateHandler {
 
     @Override
     public void processDocument(Update update) {
-        // TODO Auto-generated method stub
+        final String chatId = update.getMessage().getChatId().toString();
+        AdminBotContext botContext = null;
+        AdminBotState botState = null;
 
+        User user = userService.getByTelegramId(chatId);
+        Admin admin = user.getAdmin();
+
+        if (admin == null) {
+            admin = adminService.createAdmin(user);
+
+            botContext = AdminBotContext.of(admin, update);
+            botState = admin.getAdminBotState();
+
+            botState.enter(botContext);
+
+            while (!botState.getIsInputNeeded()) {
+                if (botState.nextState() != null) {
+                    botState = botState.nextState();
+                    botState.enter(botContext);
+                }
+            }
+        } else {
+            botContext = AdminBotContext.of(admin, update);
+            botState = admin.getAdminBotState();
+
+            LOGGER.info("Document received from admin: " + chatId + ", in state: " + botState + ", file_id: " + update.getMessage().getDocument().getFileId());
+
+            botState.handleDocument(botContext);
+
+            do {
+                if (botState.nextState() != null) {
+                    botState = botState.nextState();
+                    botState.enter(botContext);
+                } else {
+                    break;
+                }
+            } while (!botState.getIsInputNeeded());
+        }
+
+        user.getAdmin().setAdminBotState(botState);
+        userService.save(user);
     }
 
-    
+
 }

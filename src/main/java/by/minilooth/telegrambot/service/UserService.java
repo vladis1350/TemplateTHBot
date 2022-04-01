@@ -41,21 +41,16 @@ public class UserService {
     }
 
     public User createUser(Update update) {
-        User user = User.builder()
+        return User.builder()
                 .telegramId(update.getMessage().getFrom().getId().toString())
                 .firstname(update.getMessage().getFrom().getFirstName())
                 .lastname(update.getMessage().getFrom().getLastName())
                 .username(update.getMessage().getFrom().getUserName())
-                .role(Role.USER)
                 .botLastMessageId(0)
                 .botLastMessageDate(0)
                 .botLastMessageEditable(false)
-                .currentPage(1)
+                .currentPage(DEFAULT_PAGE)
                 .build();
-
-        this.save(user);
-
-        return user;
     }
 
 }

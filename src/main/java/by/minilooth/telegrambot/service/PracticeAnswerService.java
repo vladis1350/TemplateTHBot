@@ -35,9 +35,10 @@ public class PracticeAnswerService {
     }
 
 
-    public PracticeAnswer createPracticeAnswer(Practice practice) {
+    public PracticeAnswer createPracticeAnswer(Practice practice, String answer) {
         PracticeAnswer practiceAnswer = PracticeAnswer.builder()
                 .practice(practice)
+                .answer(answer)
                 .build();
 
         save(practiceAnswer);
@@ -72,7 +73,28 @@ public class PracticeAnswerService {
     }
 
     @Transactional
+    public void deleteClientAnswer(Client client) {
+        List<PracticeAnswer> answerList = getAllByClient(client);
+
+        if (!answerList.isEmpty()) {
+            for (int i = 0; i < answerList.size(); i++) {
+                if (answerList.get(i).getPractice().equals(client.getCurrentPractice())) {
+                    answerList.remove(answerList.get(i));
+                }
+            }
+            client.setAnswers(new HashSet<>(answerList));
+
+            clientService.save(client);
+        }
+    }
+
+    @Transactional
     public List<PracticeAnswer> getAllByClientAndPractice(Client client, Practice practice) {
         return practiceAnswerRepository.findAllByClientsAndPractice(client, practice);
+    }
+
+    @Transactional
+    public void deleteAllByClientAndPractice(Client client, Practice practice) {
+        practiceAnswerRepository.deleteAllByClientsAndPractice(client, practice);
     }
 }

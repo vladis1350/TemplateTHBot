@@ -33,6 +33,18 @@ public class Admin {
     @OneToOne(mappedBy = "admin", cascade = CascadeType.ALL)
     private User user;
 
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @ManyToOne
+    @JoinColumn(name = "CurrentPracticeId")
+    private Practice currentPractice;
+
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @ManyToOne
+    @JoinColumn(name = "CurrentAnswerId")
+    private PracticeAnswer currentAnswer;
+
     public String getTelegramId() {
         if (this.user == null) {
             return null;

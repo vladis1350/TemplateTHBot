@@ -35,9 +35,10 @@ public class PracticeService {
         return practiceRepository.getAllByTopic(topic);
     }
 
-    public Practice createPractice(Topic topic) {
+    public Practice createPractice(Topic topic, String question) {
         Practice practice = Practice.builder()
                 .topic(topic)
+                .question(question)
                 .build();
 
         save(practice);

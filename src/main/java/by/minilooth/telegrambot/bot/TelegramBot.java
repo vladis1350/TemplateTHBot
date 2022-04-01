@@ -28,6 +28,9 @@ public class TelegramBot extends TelegramLongPollingBot {
     @Value("${telegram.botToken}")
     private String botToken;
 
+    @Value("admin_password")
+    private String password;
+
     public static final String ADMIN_DEEP_LINK = "start_admin";
 
     @Autowired
@@ -83,8 +86,8 @@ public class TelegramBot extends TelegramLongPollingBot {
             user.setRole(Role.ADMIN);
             LOGGER.info("New admin registered: " + chatId);
         } else {
-            LOGGER.info("New user registered: " + chatId);
             user.setRole(Role.CLIENT);
+            LOGGER.info("New user registered: " + chatId);
         }
 
         userService.save(user);

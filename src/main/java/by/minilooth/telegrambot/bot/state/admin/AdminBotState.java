@@ -2,33 +2,18 @@ package by.minilooth.telegrambot.bot.state.admin;
 
 import by.minilooth.telegrambot.bot.api.BotState;
 import by.minilooth.telegrambot.bot.context.admin.AdminBotContext;
+import by.minilooth.telegrambot.bot.keyboard.InlineKeyboardMarkupSource;
 import by.minilooth.telegrambot.bot.message.admin.AdminMessageService;
 import by.minilooth.telegrambot.exception.AdminBotStateException;
-import by.minilooth.telegrambot.model.Admin;
-import by.minilooth.telegrambot.model.Theory;
-import by.minilooth.telegrambot.model.Topic;
+import by.minilooth.telegrambot.model.*;
 import by.minilooth.telegrambot.service.*;
 import com.vdurmont.emoji.EmojiParser;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.telegram.telegrambots.meta.api.objects.Document;
 
+@Slf4j
 public enum AdminBotState implements BotState<AdminBotState, AdminBotContext> {
-    Start(false) {
-        @Override
-        public void enter(AdminBotContext botContext) {
-            adminMessageService.sendStartMessage(botContext);
-        }
-
-        @Override
-        public AdminBotState nextState() {
-            return MainMenu;
-        }
-
-        @Override
-        public AdminBotState rootState() {
-            return Start;
-        }
-
-    },
 
     MainMenu(true) {
         AdminBotState adminBotState = null;
@@ -110,15 +95,274 @@ public enum AdminBotState implements BotState<AdminBotState, AdminBotContext> {
         public void handleText(AdminBotContext adminBotContext) {
             String theoryText = adminBotContext.getUpdate().getMessage().getText();
             Admin admin = adminBotContext.getAdmin();
-            Theory theory = theoryService.createTheory(admin.getCurrentTopic(), theoryText);
-            if (theory != null) {
-                adminMessageService.sendTheorySuccessfullyAddedMessage(adminBotContext);
+            if (theoryText.equals("Загрузить файл")) {
+                adminBotState = LoadTheoryFile;
+            } else {
+                Theory theory = theoryService.createTheory(admin.getCurrentTopic(), theoryText);
+                if (theory != null) {
+                    topicService.save(admin.getCurrentTopic());
+                    adminBotState = TheorySuccessfullyAdded;
+                }
             }
         }
 
         @Override
         public AdminBotState nextState() {
+            return adminBotState;
+        }
+
+        @Override
+        public AdminBotState rootState() {
             return MainMenu;
+        }
+
+    },
+
+    LoadTheoryFile(true) {
+        AdminBotState adminBotState = null;
+
+        @Override
+        public void enter(AdminBotContext botContext) {
+            adminMessageService.sendLoadTheoryFileMessage(botContext);
+        }
+
+        @Override
+        public void handleText(AdminBotContext adminBotContext) {
+            switch (EmojiParser.removeAllEmojis(adminBotContext.getUpdate().getMessage().getText())) {
+                case "Отмена":
+                    adminBotState = EnterTheory;
+                    break;
+                default:
+                    adminBotState = MainMenu;
+                    break;
+            }
+        }
+
+        @Override
+        public void handleDocument(AdminBotContext adminBotContext) {
+            Admin admin = adminBotContext.getAdmin();
+                Document document = adminBotContext.getUpdate().getMessage().getDocument();
+                String caption = adminBotContext.getUpdate().getMessage().getCaption();
+
+                Theory theory = theoryService.createTheory(admin.getCurrentTopic(), document, caption);
+                if (theory != null) {
+                    topicService.save(admin.getCurrentTopic());
+                    adminBotState = TheorySuccessfullyAdded;
+                }
+        }
+
+        @Override
+        public AdminBotState nextState() {
+            return adminBotState;
+        }
+
+        @Override
+        public AdminBotState rootState() {
+            return MainMenu;
+        }
+
+    },
+
+    TheorySuccessfullyAdded(true) {
+        AdminBotState adminBotState = null;
+
+        @Override
+        public void enter(AdminBotContext adminBotContext) {
+            adminMessageService.sendTheorySuccessfullyAddedMessage(adminBotContext);
+        }
+
+        @Override
+        public void handleText(AdminBotContext adminBotContext) {
+            switch (EmojiParser.removeAllEmojis(adminBotContext.getUpdate().getMessage().getText())) {
+                case "Добавить практику":
+                    adminBotState = EnterQuestion;
+                    break;
+                case "Главное меню":
+                    adminBotState = MainMenu;
+                    break;
+                default:
+                    adminBotState = MainMenu;
+                    break;
+            }
+        }
+
+        @Override
+        public AdminBotState nextState() {
+            return adminBotState;
+        }
+
+        @Override
+        public AdminBotState rootState() {
+            return MainMenu;
+        }
+
+    },
+
+    EnterQuestion(true) {
+        AdminBotState adminBotState = null;
+
+        @Override
+        public void enter(AdminBotContext adminBotContext) {
+            adminMessageService.sendEnterQuestionMessage(adminBotContext);
+        }
+
+        @Override
+        public void handleText(AdminBotContext adminBotContext) {
+            String adminAnswer = adminBotContext.getUpdate().getMessage().getText();
+            Admin admin = adminBotContext.getAdmin();
+            Practice practice = practiceService.createPractice(admin.getCurrentTopic(), adminAnswer);
+            if (practice != null) {
+                admin.setCurrentPractice(practice);
+                adminService.save(admin);
+            }
+        }
+
+        @Override
+        public AdminBotState nextState() {
+            return EnterAnswer;
+        }
+
+        @Override
+        public AdminBotState rootState() {
+            return MainMenu;
+        }
+
+    },
+
+    EnterAnswer(true) {
+        AdminBotState adminBotState = null;
+
+        @Override
+        public void enter(AdminBotContext adminBotContext) {
+            adminMessageService.sendEnterAnswerMessage(adminBotContext);
+        }
+
+        @Override
+        public void handleText(AdminBotContext adminBotContext) {
+            String adminAnswer = adminBotContext.getUpdate().getMessage().getText();
+            Admin admin = adminBotContext.getAdmin();
+            PracticeAnswer answer = practiceAnswerService.createPracticeAnswer(admin.getCurrentPractice(), adminAnswer);
+            admin.setCurrentAnswer(answer);
+            adminService.save(admin);
+        }
+
+        @Override
+        public AdminBotState nextState() {
+            return AnswerIsCorrect;
+        }
+
+        @Override
+        public AdminBotState rootState() {
+            return MainMenu;
+        }
+
+    },
+
+    AnswerIsCorrect(true) {
+        AdminBotState adminBotState = null;
+
+        @Override
+        public void enter(AdminBotContext adminBotContext) {
+            adminMessageService.sendAnswerIsCorrectMessage(adminBotContext);
+        }
+
+        @Override
+        public void handleCallbackQuery(AdminBotContext adminBotContext) {
+            String adminAnswer = adminBotContext.getUpdate().getCallbackQuery().getData();
+            Admin admin = adminBotContext.getAdmin();
+            PracticeAnswer answer = admin.getCurrentAnswer();
+            if (adminAnswer.equals("answerIsCorrect")) {
+                answer.setIsCorrect(true);
+            } else if (adminAnswer.equals("answerNotCorrect")) {
+                answer.setIsCorrect(false);
+            }
+            practiceAnswerService.save(answer);
+        }
+
+        @Override
+        public void handleText(AdminBotContext adminBotContext) {
+            String adminAnswer = adminBotContext.getUpdate().getMessage().getText();
+            Admin admin = adminBotContext.getAdmin();
+            practiceAnswerService.createPracticeAnswer(admin.getCurrentPractice(), adminAnswer);
+        }
+
+        @Override
+        public AdminBotState nextState() {
+            return AnswerSuccessfullyAdded;
+        }
+
+        @Override
+        public AdminBotState rootState() {
+            return MainMenu;
+        }
+
+    },
+
+    AnswerSuccessfullyAdded(true) {
+        AdminBotState adminBotState = null;
+
+        @Override
+        public void enter(AdminBotContext adminBotContext) {
+            adminMessageService.sendAnswerSuccessfullyAddedMessage(adminBotContext);
+        }
+
+        @Override
+        public void handleText(AdminBotContext adminBotContext) {
+            switch (EmojiParser.removeAllEmojis(adminBotContext.getUpdate().getMessage().getText())) {
+                case "Добавить вариант ответа":
+                    adminBotState = EnterAnswer;
+                    break;
+                case "Завершить добавление ответов":
+                    adminBotContext.getAdmin().setCurrentAnswer(null);
+                    adminBotState = PracticeMenu;
+                    break;
+                default:
+                    adminBotState = MainMenu;
+                    break;
+            }
+        }
+
+        @Override
+        public AdminBotState nextState() {
+            return adminBotState;
+        }
+
+        @Override
+        public AdminBotState rootState() {
+            return MainMenu;
+        }
+
+    },
+
+    PracticeMenu(true) {
+        AdminBotState adminBotState = null;
+
+        @Override
+        public void enter(AdminBotContext adminBotContext) {
+            adminMessageService.sendSelectProcessMessage(adminBotContext);
+        }
+
+        @Override
+        public void handleText(AdminBotContext adminBotContext) {
+            switch (EmojiParser.removeAllEmojis(adminBotContext.getUpdate().getMessage().getText())) {
+                case "Добавить вопрос":
+                    adminBotState = EnterQuestion;
+                    break;
+                case "Главное меню":
+                    adminBotContext.getAdmin().setCurrentAnswer(null);
+                    adminBotContext.getAdmin().setCurrentPractice(null);
+                    adminBotContext.getAdmin().setCurrentTopic(null);
+                    adminBotState = MainMenu;
+                    break;
+                default:
+                    adminBotState = MainMenu;
+                    break;
+            }
+        }
+
+        @Override
+        public AdminBotState nextState() {
+            return adminBotState;
         }
 
         @Override
@@ -133,7 +377,51 @@ public enum AdminBotState implements BotState<AdminBotState, AdminBotContext> {
 
         @Override
         public void enter(AdminBotContext botContext) {
-            adminMessageService.sendMainMenuMessage(botContext);
+            adminMessageService.sendTopicList(botContext);
+        }
+
+        @Override
+        public void handleCallbackQuery(AdminBotContext adminBotContext) {
+            String callbackData = adminBotContext.getUpdate().getCallbackQuery().getData();
+            Integer countOfTopics = topicService.getAll().size();
+            Integer page = adminBotContext.getAdmin().getUser().getCurrentPage();
+
+            if (callbackData.equals("callback.previous")) {
+                if (page > 1) {
+                    page--;
+                } else {
+                    page = (int) Math.ceil((float) countOfTopics / (float) InlineKeyboardMarkupSource.ITEMS_PER_PAGE);
+                }
+
+                adminBotContext.getAdmin().getUser().setCurrentPage(page);
+                adminBotState = GetTopicList;
+            } else if (callbackData.equals("callback.next")) {
+                if (page * InlineKeyboardMarkupSource.ITEMS_PER_PAGE < countOfTopics) {
+                    page++;
+                } else {
+                    page = 1;
+                }
+
+                adminBotContext.getAdmin().getUser().setCurrentPage(page);
+                adminBotState = GetTopicList;
+            } else {
+                adminBotContext.getAdmin().getUser().setCurrentPage(UserService.DEFAULT_PAGE);
+                try {
+                    Topic topic = topicService.getTopicById(Long.parseLong(callbackData));
+                    if (topic != null) {
+                        Admin admin = adminBotContext.getAdmin();
+                        admin.setCurrentTopic(topic);
+                        adminService.save(admin);
+                        adminBotState = GetTheory;
+                    } else {
+                        log.error("Topic is null");
+                        adminBotState = MainMenu;
+                    }
+                } catch (NumberFormatException ex) {
+                    log.error("Error: " + ex.getMessage());
+                    adminBotState = MainMenu;
+                }
+            }
         }
 
         @Override
@@ -148,15 +436,14 @@ public enum AdminBotState implements BotState<AdminBotState, AdminBotContext> {
 
         @Override
         public AdminBotState rootState() {
-            return Start;
+            return MainMenu;
         }
-
     },
 
-    EnterTopicName(true) {
+    GetTheory(true) {
         @Override
         public void enter(AdminBotContext botContext) {
-            adminMessageService.sendStartMessage(botContext);
+            adminMessageService.sendTheoryMessage(botContext);
         }
 
         @Override
@@ -166,7 +453,7 @@ public enum AdminBotState implements BotState<AdminBotState, AdminBotContext> {
 
         @Override
         public AdminBotState rootState() {
-            return Start;
+            return MainMenu;
         }
 
     };
@@ -182,7 +469,7 @@ public enum AdminBotState implements BotState<AdminBotState, AdminBotContext> {
     }
 
     public static AdminBotState getInitialState() {
-        return Start;
+        return MainMenu;
     }
 
     @Override
@@ -190,7 +477,7 @@ public enum AdminBotState implements BotState<AdminBotState, AdminBotContext> {
     }
 
     @Override
-    public void handleCallbackQuery(AdminBotContext adminBotContext) throws AdminBotStateException {
+    public void handleCallbackQuery(AdminBotContext adminBotContext) {
     }
 
     @Override
@@ -214,11 +501,11 @@ public enum AdminBotState implements BotState<AdminBotState, AdminBotContext> {
     }
 
     @Override
-    public void handleDocument(AdminBotContext adminBotContext) throws AdminBotStateException {
+    public void handleDocument(AdminBotContext adminBotContext) {
     }
 
     @Override
-    public abstract void enter(AdminBotContext adminBotContext) throws AdminBotStateException;
+    public abstract void enter(AdminBotContext adminBotContext);
 
     @Override
     public abstract AdminBotState nextState();
