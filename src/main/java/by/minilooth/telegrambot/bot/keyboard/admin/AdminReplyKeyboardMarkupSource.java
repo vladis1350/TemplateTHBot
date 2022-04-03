@@ -15,11 +15,17 @@ public class AdminReplyKeyboardMarkupSource extends ReplyKeyboardMarkupSource {
         List<KeyboardRow> keyboardRows = new ArrayList<>();
 
         KeyboardRow firstKeyboardRow = new KeyboardRow();
+        KeyboardRow firstKeyboardRowTwo = new KeyboardRow();
+        KeyboardRow firstKeyboardRowThree = new KeyboardRow();
 
         firstKeyboardRow.add(new KeyboardButton("Добавить тему"));
         firstKeyboardRow.add(new KeyboardButton("Список тем"));
+        firstKeyboardRowTwo.add(new KeyboardButton("Результаты"));
+        firstKeyboardRowThree.add(new KeyboardButton("Удалить тему"));
 
         keyboardRows.add(firstKeyboardRow);
+        keyboardRows.add(firstKeyboardRowTwo);
+        keyboardRows.add(firstKeyboardRowThree);
 
         replyKeyboardMarkup.setKeyboard(keyboardRows);
         return replyKeyboardMarkup;

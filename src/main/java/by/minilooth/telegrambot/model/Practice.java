@@ -41,4 +41,11 @@ public class Practice {
     @ToString.Exclude
     @OneToMany(mappedBy = "currentPractice", cascade = CascadeType.PERSIST)
     private Set<Admin> currentAdmins;
+
+    @PreRemove
+    private void preRemove() {
+        currentAdmins.forEach(m -> m.setCurrentPractice(null));
+        currentClients.forEach(m -> m.setCurrentPractice(null));
+        topic = null;
+    }
 }

@@ -10,4 +10,5 @@ import java.util.List;
 @Repository
 public interface PracticeRepository extends JpaRepository<Practice, Long> {
     public List<Practice> getAllByTopic(Topic topic);
+    void deletePracticesByTopic(Topic topic);
 }

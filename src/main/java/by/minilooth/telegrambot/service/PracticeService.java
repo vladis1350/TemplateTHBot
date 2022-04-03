@@ -26,6 +26,11 @@ public class PracticeService {
     }
 
     @Transactional
+    public void deletePracticesByTopic(Topic topic) {
+        practiceRepository.deletePracticesByTopic(topic);
+    }
+
+    @Transactional
     public List<Practice> getAll() {
         return practiceRepository.findAll();
     }

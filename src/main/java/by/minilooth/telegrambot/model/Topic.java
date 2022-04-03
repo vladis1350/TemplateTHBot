@@ -41,4 +41,10 @@ public class Topic {
     @OneToMany(mappedBy = "currentTopic", cascade = CascadeType.PERSIST)
     private Set<Client> currentClients;
 
+    @PreRemove
+    private void preRemove() {
+        currentAdmins.forEach(m -> m.setCurrentTopic(null));
+        currentClients.forEach(m -> m.setCurrentTopic(null));
+        theory = null;
+    }
 }

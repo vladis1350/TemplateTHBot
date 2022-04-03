@@ -2,13 +2,10 @@ package by.minilooth.telegrambot.bot.handler.admin;
 
 import by.minilooth.telegrambot.bot.api.UpdateHandler;
 import by.minilooth.telegrambot.bot.context.admin.AdminBotContext;
-import by.minilooth.telegrambot.bot.context.client.ClientBotContext;
 import by.minilooth.telegrambot.bot.state.admin.AdminBotState;
-import by.minilooth.telegrambot.bot.state.client.ClientBotState;
 import by.minilooth.telegrambot.exception.AdminBotStateException;
 import by.minilooth.telegrambot.exception.UserNotFoundException;
 import by.minilooth.telegrambot.model.Admin;
-import by.minilooth.telegrambot.model.Client;
 import by.minilooth.telegrambot.model.User;
 import by.minilooth.telegrambot.service.AdminService;
 import by.minilooth.telegrambot.service.UserService;

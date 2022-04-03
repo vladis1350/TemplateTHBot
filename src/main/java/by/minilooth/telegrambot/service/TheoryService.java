@@ -28,6 +28,11 @@ public class TheoryService {
     }
 
     @Transactional
+    public void deleteTheoryByTopic(Topic topic) {
+        topicRepository.deleteTheoryByTopic(topic);
+    }
+
+    @Transactional
     public List<Theory> getAll() {
         return topicRepository.findAll();
     }

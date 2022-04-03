@@ -35,7 +35,7 @@ public class PracticeAnswer {
     @ToString.Exclude
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(	name = "client_answer",
+    @JoinTable(name = "client_answer",
             joinColumns = @JoinColumn(name = "AnswerId"),
             inverseJoinColumns = @JoinColumn(name = "ClientId"))
     private Set<Client> clients = new HashSet<>();
@@ -44,4 +44,10 @@ public class PracticeAnswer {
     @ToString.Exclude
     @OneToMany(mappedBy = "currentAnswer", cascade = CascadeType.PERSIST)
     private Set<Admin> currentAdmins;
+
+    @PreRemove
+    private void preRemove() {
+        currentAdmins.forEach(m -> m.setCurrentTopic(null));
+        practice = null;
+    }
 }

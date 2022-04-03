@@ -62,6 +62,29 @@ public class AdminInlineKeyboardSource extends InlineKeyboardMarkupSource {
         return inlineKeyboardMarkup;
     }
 
+    public final InlineKeyboardMarkup getConfirmationDeleteInlineMarkup() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboardRows = new ArrayList<>();
+
+        List<InlineKeyboardButton> buttons = new ArrayList<>();
+        InlineKeyboardButton buttonYes = new InlineKeyboardButton();
+        InlineKeyboardButton buttonNo = new InlineKeyboardButton();
+
+        buttonYes.setText("Да");
+        buttonYes.setCallbackData("confirm");
+        buttonNo.setText("Нет");
+        buttonNo.setCallbackData("notConfirm");
+
+        buttons.add(buttonYes);
+        buttons.add(buttonNo);
+
+        keyboardRows.add(buttons);
+
+        inlineKeyboardMarkup.setKeyboard(keyboardRows);
+
+        return inlineKeyboardMarkup;
+    }
+
     public final InlineKeyboardMarkup generateAnswersForSandboxPageableInlineMarkup(List<PracticeAnswer> practiceAnswers) {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboardRows = new ArrayList<>();
