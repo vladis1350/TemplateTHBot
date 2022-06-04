@@ -143,6 +143,24 @@ public class AdminMessageService extends MessageService {
         }
     }
 
+    public void sendTheorySuccessfullyEditedMessage(AdminBotContext adminBotContext) {
+        Admin admin = adminBotContext.getAdmin();
+
+        if (checkEditableMessage(adminBotContext)) {
+
+        } else {
+            try {
+                Message message = messageSender.sendMessage(admin.getTelegramId().toString(),
+                        String.format(adminMessageSource.getMessage("sendTheorySuccessfullyEditedMessage"), admin.getCurrentTopic().getName()),
+                        adminReplyKeyboardMarkupSource.getAddPracticeKeyboard());
+
+                updateLastBotMessageId(admin.getUser(), message);
+            } catch (TelegramApiException ex) {
+                LOGGER.error("Unable to send sendTheorySuccessfullyAddedMessage to admin: {}, reason: {}", admin.getTelegramId(), ex.getLocalizedMessage());
+            }
+        }
+    }
+
     public void sendEnterQuestionMessage(AdminBotContext adminBotContext) {
         Admin admin = adminBotContext.getAdmin();
 
@@ -392,7 +410,7 @@ public class AdminMessageService extends MessageService {
         }
         try {
             Message message = messageSender.sendMessage(admin.getTelegramId(),
-                    resultText.toString(), adminReplyKeyboardMarkupSource.getCancelKeyboard());
+                    resultText.toString(), adminReplyKeyboardMarkupSource.getCancelPracticeKeyboard(practices));
 
             updateLastBotMessageId(admin.getUser(), message);
         } catch (TelegramApiException ex) {
@@ -435,6 +453,23 @@ public class AdminMessageService extends MessageService {
         }
     }
 
+    public void sendConfirmationDeleteQuestionMessage(AdminBotContext adminBotContext) {
+        Admin admin = adminBotContext.getAdmin();
+
+        if (checkEditableMessage(adminBotContext)) {
+            messageSender.deleteBotLastMessage(admin.getUser());
+        }
+        try {
+            Message message = messageSender.sendMessage(admin.getTelegramId().toString(),
+                    adminMessageSource.getMessage("confirmationDeleteQuestion"),
+                    adminInlineKeyboardSource.getConfirmationDeleteInlineMarkup());
+
+            updateLastBotMessageId(admin.getUser(), message);
+        } catch (TelegramApiException ex) {
+            LOGGER.error("Unable to send sendConfirmationDeleteQuestionMessage to admin: {}, reason: {}", admin.getTelegramId(), ex.getLocalizedMessage());
+        }
+    }
+
     public void sendTopicSuccessfullyDeletedMessage(AdminBotContext adminBotContext) {
         Admin admin = adminBotContext.getAdmin();
 
@@ -449,6 +484,23 @@ public class AdminMessageService extends MessageService {
             updateLastBotMessageId(admin.getUser(), message);
         } catch (TelegramApiException ex) {
             LOGGER.error("Unable to send sendTopicSuccessfullyDeletedMessage to admin: {}, reason: {}", admin.getTelegramId(), ex.getLocalizedMessage());
+        }
+    }
+
+    public void sendQuestionSuccessfullyDeletedMessage(AdminBotContext adminBotContext) {
+        Admin admin = adminBotContext.getAdmin();
+
+        if (checkEditableMessage(adminBotContext)) {
+            messageSender.deleteBotLastMessage(admin.getUser());
+        }
+        try {
+            Message message = messageSender.sendMessage(admin.getTelegramId().toString(),
+                    adminMessageSource.getMessage("sendQuestionSuccessfullyDeletedMessage"),
+                    adminReplyKeyboardMarkupSource.getMainMenuKeyboard());
+
+            updateLastBotMessageId(admin.getUser(), message);
+        } catch (TelegramApiException ex) {
+            LOGGER.error("Unable to send sendQuestionSuccessfullyDeletedMessage to admin: {}, reason: {}", admin.getTelegramId(), ex.getLocalizedMessage());
         }
     }
 
@@ -479,6 +531,40 @@ public class AdminMessageService extends MessageService {
             Message message = messageSender.sendMessage(admin.getTelegramId().toString(),
                     adminMessageSource.getMessage("startMessage"),
                     null);
+
+            updateLastBotMessageId(admin.getUser(), message);
+        } catch (TelegramApiException ex) {
+            LOGGER.error("Unable to send sendStartMessage to admin: {}, reason: {}", admin.getTelegramId(), ex.getLocalizedMessage());
+        }
+    }
+
+    public void sendEnterNumberQuestionForDeleteMessage(AdminBotContext adminBotContext) {
+        Admin admin = adminBotContext.getAdmin();
+
+        if (checkEditableMessage(adminBotContext)) {
+            messageSender.deleteBotLastMessage(admin.getUser());
+        }
+        try {
+            Message message = messageSender.sendMessage(admin.getTelegramId().toString(),
+                    adminMessageSource.getMessage("enterQuestionNumberForDelete"),
+                    adminReplyKeyboardMarkupSource.getCancelKeyboard());
+
+            updateLastBotMessageId(admin.getUser(), message);
+        } catch (TelegramApiException ex) {
+            LOGGER.error("Unable to send sendStartMessage to admin: {}, reason: {}", admin.getTelegramId(), ex.getLocalizedMessage());
+        }
+    }
+
+    public void sendErrorDeleteMessage(AdminBotContext adminBotContext) {
+        Admin admin = adminBotContext.getAdmin();
+
+        if (checkEditableMessage(adminBotContext)) {
+            messageSender.deleteBotLastMessage(admin.getUser());
+        }
+        try {
+            Message message = messageSender.sendMessage(admin.getTelegramId().toString(),
+                    adminMessageSource.getMessage("sendErrorDeleteMessage"),
+                    adminReplyKeyboardMarkupSource.getCancelKeyboard());
 
             updateLastBotMessageId(admin.getUser(), message);
         } catch (TelegramApiException ex) {

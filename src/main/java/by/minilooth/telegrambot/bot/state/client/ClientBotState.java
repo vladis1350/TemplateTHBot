@@ -145,7 +145,7 @@ public enum ClientBotState implements BotState<ClientBotState, ClientBotContext>
                 case "Назад к списку тем":
                     nextState = GetTopicList;
                     break;
-                case "Практика":
+                case "Проверь себя":
                     nextState = AskQuestion;
                     break;
                 default:
@@ -179,7 +179,7 @@ public enum ClientBotState implements BotState<ClientBotState, ClientBotContext>
                 case "Назад к списку тем":
                     nextState = GetTopicList;
                     break;
-                case "Практика":
+                case "Проверь себя":
                     nextState = AskQuestion;
                     break;
                 default:

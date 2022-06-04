@@ -1,6 +1,7 @@
 package by.minilooth.telegrambot.bot.keyboard.admin;
 
 import by.minilooth.telegrambot.bot.keyboard.ReplyKeyboardMarkupSource;
+import by.minilooth.telegrambot.model.Practice;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
@@ -36,11 +37,14 @@ public class AdminReplyKeyboardMarkupSource extends ReplyKeyboardMarkupSource {
         List<KeyboardRow> keyboardRows = new ArrayList<>();
 
         KeyboardRow firstKeyboardRow = new KeyboardRow();
+        KeyboardRow editTheory = new KeyboardRow();
 
         firstKeyboardRow.add(new KeyboardButton("Практика"));
         firstKeyboardRow.add(new KeyboardButton("Назад к списку тем"));
+        editTheory.add(new KeyboardButton("Редактировать теорию"));
 
         keyboardRows.add(firstKeyboardRow);
+        keyboardRows.add(editTheory);
 
         replyKeyboardMarkup.setKeyboard(keyboardRows);
         return replyKeyboardMarkup;
@@ -53,6 +57,30 @@ public class AdminReplyKeyboardMarkupSource extends ReplyKeyboardMarkupSource {
         KeyboardRow firstKeyboardRow = new KeyboardRow();
 
         firstKeyboardRow.add(new KeyboardButton("Отмена"));
+
+        keyboardRows.add(firstKeyboardRow);
+
+        replyKeyboardMarkup.setKeyboard(keyboardRows);
+        return replyKeyboardMarkup;
+    }
+
+    public ReplyKeyboardMarkup getCancelPracticeKeyboard(List<Practice> practices) {
+        ReplyKeyboardMarkup replyKeyboardMarkup = this.createInstance(true, true, false);
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+
+        KeyboardRow firstKeyboardRow = new KeyboardRow();
+        KeyboardRow lastKeyboardRow = new KeyboardRow();
+        KeyboardRow addPractice = new KeyboardRow();
+
+        firstKeyboardRow.add(new KeyboardButton("Отмена"));
+        lastKeyboardRow.add(new KeyboardButton("Удалить вопрос"));
+        addPractice.add(new KeyboardButton("Добавить вопрос"));
+
+        keyboardRows.add(addPractice);
+
+        if (!practices.isEmpty()) {
+            keyboardRows.add(lastKeyboardRow);
+        }
 
         keyboardRows.add(firstKeyboardRow);
 

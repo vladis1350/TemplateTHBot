@@ -12,6 +12,8 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.telegram.telegrambots.meta.api.objects.Document;
 
+import java.util.List;
+
 @Slf4j
 public enum AdminBotState implements BotState<AdminBotState, AdminBotContext> {
 
@@ -144,6 +146,43 @@ public enum AdminBotState implements BotState<AdminBotState, AdminBotContext> {
 
     },
 
+    EditTheory(true) {
+        AdminBotState adminBotState = null;
+
+        @Override
+        public void enter(AdminBotContext botContext) {
+            adminMessageService.sendEnterTheoryMessage(botContext);
+        }
+
+        @Override
+        public void handleText(AdminBotContext adminBotContext) {
+            String theoryText = adminBotContext.getUpdate().getMessage().getText();
+            Admin admin = adminBotContext.getAdmin();
+            if (theoryText.equals("Загрузить файл")) {
+                adminBotState = EditTheoryFile;
+            } else {
+                Theory theory = admin.getCurrentTopic().getTheory();
+                if (theory != null) {
+
+                    theory.setTheoryText(theoryText);
+                    theoryService.save(theory);
+                    adminBotState = TheorySuccessfullyEdited;
+                }
+            }
+        }
+
+        @Override
+        public AdminBotState nextState() {
+            return adminBotState;
+        }
+
+        @Override
+        public AdminBotState rootState() {
+            return MainMenu;
+        }
+
+    },
+
     LoadTheoryFile(true) {
         AdminBotState adminBotState = null;
 
@@ -189,12 +228,95 @@ public enum AdminBotState implements BotState<AdminBotState, AdminBotContext> {
 
     },
 
+    EditTheoryFile(true) {
+        AdminBotState adminBotState = null;
+
+        @Override
+        public void enter(AdminBotContext botContext) {
+            adminMessageService.sendLoadTheoryFileMessage(botContext);
+        }
+
+        @Override
+        public void handleText(AdminBotContext adminBotContext) {
+            switch (EmojiParser.removeAllEmojis(adminBotContext.getUpdate().getMessage().getText())) {
+                case "Отмена":
+                    adminBotState = GetTopicList;
+                    break;
+                default:
+                    adminBotState = MainMenu;
+                    break;
+            }
+        }
+
+        @Override
+        public void handleDocument(AdminBotContext adminBotContext) {
+            Admin admin = adminBotContext.getAdmin();
+            Document document = adminBotContext.getUpdate().getMessage().getDocument();
+            String caption = adminBotContext.getUpdate().getMessage().getCaption();
+
+            Theory theory = admin.getCurrentTopic().getTheory();
+            if (theory != null) {
+                theory.setCaption(caption);
+                theory.setData(document.getFileId());
+                theory.setFilename(document.getFileName());
+                theoryService.save(theory);
+                adminBotState = TheorySuccessfullyEdited;
+            }
+        }
+
+        @Override
+        public AdminBotState nextState() {
+            return adminBotState;
+        }
+
+        @Override
+        public AdminBotState rootState() {
+            return MainMenu;
+        }
+
+    },
+
     TheorySuccessfullyAdded(true) {
         AdminBotState adminBotState = null;
 
         @Override
         public void enter(AdminBotContext adminBotContext) {
             adminMessageService.sendTheorySuccessfullyAddedMessage(adminBotContext);
+        }
+
+        @Override
+        public void handleText(AdminBotContext adminBotContext) {
+            switch (EmojiParser.removeAllEmojis(adminBotContext.getUpdate().getMessage().getText())) {
+                case "Добавить практику":
+                    adminBotState = EnterQuestion;
+                    break;
+                case "Главное меню":
+                    adminBotState = MainMenu;
+                    break;
+                default:
+                    adminBotState = MainMenu;
+                    break;
+            }
+        }
+
+        @Override
+        public AdminBotState nextState() {
+            return adminBotState;
+        }
+
+        @Override
+        public AdminBotState rootState() {
+            return MainMenu;
+        }
+
+    },
+
+    TheorySuccessfullyEdited(true) {
+        AdminBotState adminBotState = null;
+
+        @Override
+        public void enter(AdminBotContext adminBotContext) {
+            adminMessageService.sendTheorySuccessfullyEditedMessage(adminBotContext);
         }
 
         @Override
@@ -584,7 +706,138 @@ public enum AdminBotState implements BotState<AdminBotState, AdminBotContext> {
 
         @Override
         public void handleText(AdminBotContext adminBotContext) {
-            adminBotState = MainMenu;
+            switch (EmojiParser.removeAllEmojis(adminBotContext.getUpdate().getMessage().getText())) {
+                case "Удалить вопрос":
+                    adminBotState = DeleteQuestion;
+                    break;
+                case "Добавить вопрос":
+                    adminBotState = EnterQuestion;
+                    break;
+                default:
+                    adminBotState = MainMenu;
+                    break;
+            }
+        }
+
+        @Override
+        public AdminBotState nextState() {
+            return adminBotState;
+        }
+
+        @Override
+        public AdminBotState rootState() {
+            return MainMenu;
+        }
+    },
+
+    DeleteQuestion(true) {
+        AdminBotState adminBotState = null;
+
+        @Override
+        public void enter(AdminBotContext botContext) {
+            adminMessageService.sendEnterNumberQuestionForDeleteMessage(botContext);
+        }
+
+        @Override
+        public void handleText(AdminBotContext adminBotContext) {
+            String userAnswer = adminBotContext.getUpdate().getMessage().getText();
+            switch (userAnswer) {
+                case "Отмена":
+                    adminBotState = MainMenu;
+                    break;
+                default:
+                    try {
+                        Integer number = Integer.parseInt(userAnswer);
+                        List<Practice> practices = practiceService.getAllByTopic(adminBotContext.getAdmin().getCurrentTopic());
+                        if (number <= practices.size()) {
+                            practiceService.delete(practices.get(number - 1));
+                            adminBotState = QuestionSuccessfullyDeleted;
+                        }
+                    } catch (NumberFormatException e) {
+                        adminBotState = SendErrorDeleteMessage;
+                    }
+                    break;
+            }
+        }
+
+        @Override
+        public AdminBotState nextState() {
+            return adminBotState;
+        }
+
+        @Override
+        public AdminBotState rootState() {
+            return MainMenu;
+        }
+
+    },
+
+//    DeleteQuestion(true) {
+//        AdminBotState adminBotState = null;
+//
+//        @Override
+//        public void enter(AdminBotContext botContext) {
+//            adminMessageService.sendEnterNumberQuestionForDeleteMessage(botContext);
+//        }
+//
+//        @Override
+//        public void handleText(AdminBotContext adminBotContext) {
+//            String userAnswer = adminBotContext.getUpdate().getMessage().getText();
+//            switch (userAnswer) {
+//                case "Отмена":
+//                    adminBotState = MainMenu;
+//                    break;
+//                default:
+//                    try {
+//                        Integer number = Integer.parseInt(userAnswer);
+//                        List<Practice> practices = practiceService.getAllByTopic(adminBotContext.getAdmin().getCurrentTopic());
+//                        if (number <= practices.size()) {
+//                            practiceService.delete(practices.get(number - 1));
+//                            adminBotState = ShowPracticeForSelectedTopic;
+//                        }
+//                    } catch (NumberFormatException e) {
+//                        adminBotState = SendErrorDeleteMessage;
+//                    }
+//                    break;
+//            }
+//        }
+//
+//        @Override
+//        public AdminBotState nextState() {
+//            return adminBotState;
+//        }
+//
+//        @Override
+//        public AdminBotState rootState() {
+//            return MainMenu;
+//        }
+//
+//    },
+
+    SendErrorDeleteMessage(true) {
+        AdminBotState adminBotState = null;
+
+        @Override
+        public void enter(AdminBotContext botContext) {
+            adminMessageService.sendErrorDeleteMessage(botContext);
+        }
+
+        @Override
+        public void handleText(AdminBotContext adminBotContext) {
+            String userAnswer = adminBotContext.getUpdate().getMessage().getText();
+            switch (userAnswer) {
+                case "Отмена":
+                    adminBotState = MainMenu;
+                    break;
+                default:
+                    try {
+                        Integer number = Integer.parseInt(userAnswer);
+                    } catch (NumberFormatException e) {
+                        adminBotState = SendErrorDeleteMessage;
+                    }
+
+                    break;
+            }
         }
 
         @Override
@@ -666,6 +919,40 @@ public enum AdminBotState implements BotState<AdminBotState, AdminBotContext> {
             return MainMenu;
         }
 
+    },
+
+    ConfirmationDeleteQuestion(true) {
+        AdminBotState adminBotState = null;
+
+        @Override
+        public void enter(AdminBotContext adminBotContext) {
+            adminMessageService.sendConfirmationDeleteTopicMessage(adminBotContext);
+        }
+
+        @Override
+        public void handleCallbackQuery(AdminBotContext adminBotContext) {
+            String adminAnswer = adminBotContext.getUpdate().getCallbackQuery().getData();
+            Admin admin = adminBotContext.getAdmin();
+            Topic topic = admin.getCurrentTopic();
+            if (adminAnswer.equals("confirm")) {
+                admin.setCurrentTopic(null);
+                practiceService.deletePracticesByTopic(topic);
+                topicService.delete(topic);
+                adminBotState = TopicSuccessfullyDeleted;
+            } else if (adminAnswer.equals("notConfirm")) {
+                adminBotState = TopicCanceledDeleting;
+            }
+        }
+
+        @Override
+        public AdminBotState nextState() {
+            return adminBotState;
+        }
+
+        @Override
+        public AdminBotState rootState() {
+            return MainMenu;
+        }
     },
 
     ConfirmationDeleteTopic(true) {
@@ -764,6 +1051,25 @@ public enum AdminBotState implements BotState<AdminBotState, AdminBotContext> {
         }
     },
 
+    QuestionSuccessfullyDeleted(false) {
+        AdminBotState adminBotState = null;
+
+        @Override
+        public void enter(AdminBotContext botContext) {
+            adminMessageService.sendTopicSuccessfullyDeletedMessage(botContext);
+        }
+
+        @Override
+        public AdminBotState nextState() {
+            return ShowPracticeForSelectedTopic;
+        }
+
+        @Override
+        public AdminBotState rootState() {
+            return MainMenu;
+        }
+    },
+
     GetTheory(true) {
         AdminBotState adminBotState = null;
 
@@ -777,6 +1083,9 @@ public enum AdminBotState implements BotState<AdminBotState, AdminBotContext> {
             switch (EmojiParser.removeAllEmojis(adminBotContext.getUpdate().getMessage().getText())) {
                 case "Практика":
                     adminBotState = ShowPracticeForSelectedTopic;
+                    break;
+                case "Редактировать теорию":
+                    adminBotState = EditTheory;
                     break;
                 case "Назад к списку тем":
                     adminBotContext.getAdmin().setCurrentTopic(null);
