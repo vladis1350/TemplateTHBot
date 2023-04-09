@@ -2,14 +2,14 @@ package by.minilooth.telegrambot.service;
 
 import java.util.List;
 
+import by.minilooth.telegrambot.model.Client;
+import by.minilooth.telegrambot.model.User;
+import by.minilooth.telegrambot.repositories.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import by.minilooth.telegrambot.bot.state.ClientBotState;
-import by.minilooth.telegrambot.model.Client;
-import by.minilooth.telegrambot.model.User;
-import by.minilooth.telegrambot.repositories.ClientRepository;
 
 @Service
 public class ClientService {

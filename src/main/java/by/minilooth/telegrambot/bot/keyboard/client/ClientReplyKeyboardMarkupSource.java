@@ -17,7 +17,7 @@ public class ClientReplyKeyboardMarkupSource extends ReplyKeyboardMarkupSource {
 
         KeyboardRow firstKeyboardRow = new KeyboardRow();
 
-        firstKeyboardRow.add(new KeyboardButton("Заполнить профиль"));
+        firstKeyboardRow.add(new KeyboardButton("Получить отчёт"));
 
         keyboardRows.add(firstKeyboardRow);
 

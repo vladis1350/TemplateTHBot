@@ -1,17 +1,22 @@
 package by.minilooth.telegrambot.bot.state;
 
-import by.minilooth.telegrambot.bot.api.BotState;
 import by.minilooth.telegrambot.bot.context.client.ClientBotContext;
 import by.minilooth.telegrambot.bot.message.client.ClientMessageService;
 import by.minilooth.telegrambot.exception.ClientBotStateException;
 import by.minilooth.telegrambot.exception.ClientNotFoundException;
+import by.minilooth.telegrambot.bot.api.BotState;
+import com.vdurmont.emoji.EmojiParser;
 import lombok.Setter;
-import lombok.SneakyThrows;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.text.ParseException;
 
 public enum ClientBotState implements BotState<ClientBotState, ClientBotContext> {
     Start(false) {
 
-        @Override public void enter(ClientBotContext botContext) {
+        @Override
+        public void enter(ClientBotContext botContext) {
             clientMessageService.sendStartMessage(botContext);
         }
 
@@ -29,22 +34,201 @@ public enum ClientBotState implements BotState<ClientBotState, ClientBotContext>
         private ClientBotState nextState = null;
 
         @Override public void enter(ClientBotContext botContext) {
-        clientMessageService.sendMainMenu(botContext);
+            clientMessageService.sendMainMenu(botContext);
         }
 
         @Override public void handleText(ClientBotContext botContext) throws ClientBotStateException {
-            // throw new ClientBotStateException("adasd", this);
+            switch (EmojiParser.removeAllEmojis(botContext.getUpdate().getMessage().getText())) {
+                case "Получить отчёт":
+                    nextState = GetReport;
+                    break;
+                default:
+                    nextState = MainMenu;
+                    break;
+            }
         }
 
         @Override public ClientBotState nextState() {
-            return EnterFirstname;
+            return nextState;
         }
 
         @Override public ClientBotState rootState() {
             return MainMenu;
         }
     },
-    
+
+    GetReport(true) {
+        private ClientBotState nextState = null;
+
+        @Override public void enter(ClientBotContext botContext) {
+            clientMessageService.sendSelectReport(botContext);
+        }
+
+        @Override public void handleText(ClientBotContext botContext) throws ClientBotStateException {
+            switch (EmojiParser.removeAllEmojis(botContext.getUpdate().getMessage().getText())) {
+                case "Получить отчёт":
+                    nextState = GetReport;
+                    break;
+                default:
+                    nextState = MainMenu;
+                    break;
+            }
+        }
+
+        @Override
+        public void handleCallbackQuery(ClientBotContext botContext) {
+            String userAnswer = botContext.getUpdate().getCallbackQuery().getData();
+            switch (EmojiParser.removeAllEmojis(userAnswer)) {
+                case "getReportMilk":
+                    nextState = GetReportMilk;
+                    break;
+                case "getReportField":
+                    nextState = GetReportField;
+                    break;
+                case "getFullReport":
+                    nextState = GetFullReport;
+                    break;
+                case "getWeeklyReport":
+                    nextState = GetWeeklyReport;
+                    break;
+                default:
+                    nextState = MainMenu;
+                    break;
+            }
+        }
+
+        @Override public ClientBotState nextState() {
+            return nextState;
+        }
+
+        @Override public ClientBotState rootState() {
+            return MainMenu;
+        }
+    },
+
+    GetFullReport(true) {
+        private ClientBotState nextState = null;
+
+        @Override public void enter(ClientBotContext botContext) {
+            try {
+                clientMessageService.sendFullReport(botContext);
+            } catch (GeneralSecurityException | IOException | ParseException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        @Override public void handleText(ClientBotContext botContext) throws ClientBotStateException {
+            switch (EmojiParser.removeAllEmojis(botContext.getUpdate().getMessage().getText())) {
+                case "Получить отчёт":
+                    nextState = GetReport;
+                    break;
+                default:
+                    nextState = MainMenu;
+                    break;
+            }
+        }
+
+        @Override public ClientBotState nextState() {
+            return nextState;
+        }
+
+        @Override public ClientBotState rootState() {
+            return MainMenu;
+        }
+    },
+
+    GetWeeklyReport(true) {
+        private ClientBotState nextState = null;
+
+        @Override public void enter(ClientBotContext botContext) {
+            try {
+                clientMessageService.sendWeeklyReport(botContext);
+            } catch (GeneralSecurityException | IOException | ParseException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        @Override public void handleText(ClientBotContext botContext) throws ClientBotStateException {
+            switch (EmojiParser.removeAllEmojis(botContext.getUpdate().getMessage().getText())) {
+                case "Получить отчёт":
+                    nextState = GetReport;
+                    break;
+                default:
+                    nextState = MainMenu;
+                    break;
+            }
+        }
+
+        @Override public ClientBotState nextState() {
+            return nextState;
+        }
+
+        @Override public ClientBotState rootState() {
+            return MainMenu;
+        }
+    },
+
+    GetReportMilk(true) {
+        private ClientBotState nextState = null;
+
+        @Override public void enter(ClientBotContext botContext) {
+            try {
+//                clientMessageService.sendReportField(botContext);
+                clientMessageService.sendReportMilk(botContext);
+            } catch (GeneralSecurityException | IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        @Override public void handleText(ClientBotContext botContext) throws ClientBotStateException {
+            switch (EmojiParser.removeAllEmojis(botContext.getUpdate().getMessage().getText())) {
+                case "Получить отчёт":
+                    nextState = GetReport;
+                    break;
+                default:
+                    nextState = MainMenu;
+                    break;
+            }
+        }
+
+        @Override public ClientBotState nextState() {
+            return nextState;
+        }
+
+        @Override public ClientBotState rootState() {
+            return MainMenu;
+        }
+    },
+
+    GetReportField(true) {
+        private ClientBotState nextState = null;
+
+        @Override public void enter(ClientBotContext botContext) {
+            try {
+                clientMessageService.sendReportField(botContext);
+//                clientMessageService.sendReportMilk(botContext);
+            } catch (GeneralSecurityException | ParseException | IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        @Override public void handleText(ClientBotContext botContext) throws ClientBotStateException {
+            switch (EmojiParser.removeAllEmojis(botContext.getUpdate().getMessage().getText())) {
+                case "Получить отчёт":
+                    nextState = GetReport;
+                    break;
+                default:
+                    nextState = MainMenu;
+                    break;
+            }
+        }
+
+        @Override public ClientBotState nextState() {
+            return nextState;
+        }
+
+        @Override public ClientBotState rootState() {
+            return MainMenu;
+        }
+    },
+
     EnterFirstname(true) {
         private ClientBotState nextState = null;
 

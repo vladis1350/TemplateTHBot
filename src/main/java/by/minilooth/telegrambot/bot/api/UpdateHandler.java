@@ -1,9 +1,10 @@
 package by.minilooth.telegrambot.bot.api;
 
+
+import by.minilooth.telegrambot.bot.api.enums.UpdateType;
+import by.minilooth.telegrambot.util.BotUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.telegram.telegrambots.meta.api.objects.Update;
-
-import by.minilooth.telegrambot.util.BotUtils;
 
 public abstract class UpdateHandler implements UpdateProcessor {
 

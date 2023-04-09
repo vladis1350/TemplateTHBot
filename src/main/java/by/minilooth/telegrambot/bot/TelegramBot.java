@@ -2,6 +2,10 @@ package by.minilooth.telegrambot.bot;
 
 import java.util.Optional;
 
+import by.minilooth.telegrambot.bot.handler.client.ClientUpdateHandler;
+import by.minilooth.telegrambot.model.User;
+import by.minilooth.telegrambot.model.enums.Role;
+import by.minilooth.telegrambot.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +15,6 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import by.minilooth.telegrambot.bot.handler.client.ClientUpdateHandler;
-import by.minilooth.telegrambot.model.User;
-import by.minilooth.telegrambot.model.enums.Role;
-import by.minilooth.telegrambot.service.UserService;
 import lombok.Getter;
 
 @Component

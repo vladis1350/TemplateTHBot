@@ -1,7 +1,11 @@
 package by.minilooth.telegrambot.bot.api;
 
 import java.io.Serializable;
+import java.time.Instant;
 
+import by.minilooth.telegrambot.model.User;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
@@ -20,11 +24,15 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import by.minilooth.telegrambot.bot.TelegramBot;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
+
 
 @Component
+@Slf4j
 public class MessageSender {
     
     private final static String DEFAULT_PARSE_MODE = "HTML";
+    public final static Long MESSAGE_ACTION_EXPIRATION = 172800L;
 
     @Autowired private TelegramBot telegramBot;
 
@@ -181,9 +189,52 @@ public class MessageSender {
 
         return false;
     }
-
+    public Boolean deleteMessage(DeleteMessage deleteMessage, Integer messageDate) throws TelegramApiException {
+        if (Instant.now().getEpochSecond() - messageDate < MESSAGE_ACTION_EXPIRATION) {
+            return telegramBot.execute(deleteMessage);
+        }
+        return false;
+    }
     private Boolean deleteMessage(DeleteMessage deleteMessage) throws TelegramApiException {
         return telegramBot.execute(deleteMessage);
     }
 
+    public Boolean isMessageExpired(Integer messageDate) {
+        return Instant.now().getEpochSecond() - messageDate >= MESSAGE_ACTION_EXPIRATION;
+    }
+
+    @SneakyThrows
+    public void deleteBotLastMessage(User user) {
+        if (!isMessageExpired(user.getBotLastMessageDate())) {
+            DeleteMessage deleteMessage = new DeleteMessage();
+
+            deleteMessage.setChatId(user.getTelegramId());
+            deleteMessage.setMessageId(user.getLastBotMessageId());
+            try {
+                if (deleteMessage(deleteMessage, user.getBotLastMessageDate())) {
+                    user.setLastBotMessageId(null);
+                    user.setBotLastMessageDate(null);
+                }
+            } catch (TelegramApiRequestException e) {
+                log.error("Error delete message: " + e.getApiResponse());
+            }
+
+        }
+    }
+
+    @SneakyThrows
+    public void deleteBotLastMessages(User user, int count) {
+        try {
+            for (int i = 0; i < count; i++) {
+                DeleteMessage deleteMessage = new DeleteMessage();
+
+                deleteMessage.setChatId(user.getTelegramId());
+                deleteMessage.setMessageId(user.getLastBotMessageId() - i);
+
+                deleteMessage(deleteMessage, user.getBotLastMessageDate());
+            }
+        } catch (TelegramApiException e) {
+            log.error("ERROR DELETING MESSAGES: " + e.getMessage());
+        }
+    }
 }

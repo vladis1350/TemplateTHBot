@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import by.minilooth.telegrambot.util.enums.Emoji;
 import com.vdurmont.emoji.EmojiParser;
 
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import by.minilooth.telegrambot.bot.api.BotState;
-import by.minilooth.telegrambot.util.enums.Emoji;
 
 public class InlineKeyboardMarkupSource {
     

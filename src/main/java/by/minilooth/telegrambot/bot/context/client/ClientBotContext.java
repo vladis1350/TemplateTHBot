@@ -1,8 +1,8 @@
 package by.minilooth.telegrambot.bot.context.client;
 
+import by.minilooth.telegrambot.model.Client;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import by.minilooth.telegrambot.model.Client;
 import lombok.Getter;
 
 @Getter

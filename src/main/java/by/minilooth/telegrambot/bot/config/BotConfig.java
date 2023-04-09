@@ -1,13 +1,13 @@
 package by.minilooth.telegrambot.bot.config;
 
+import by.minilooth.telegrambot.bot.keyboard.InlineKeyboardMarkupSource;
+import by.minilooth.telegrambot.bot.keyboard.ReplyKeyboardMarkupSource;
+import by.minilooth.telegrambot.bot.keyboard.client.ClientInlineKeyboardSource;
+import by.minilooth.telegrambot.bot.keyboard.client.ClientReplyKeyboardMarkupSource;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.stereotype.Component;
-
-import by.minilooth.telegrambot.bot.keyboard.InlineKeyboardMarkupSource;
-import by.minilooth.telegrambot.bot.keyboard.ReplyKeyboardMarkupSource;
-import by.minilooth.telegrambot.bot.keyboard.client.ClientReplyKeyboardMarkupSource;
 
 @Component
 public class BotConfig {
@@ -39,6 +39,11 @@ public class BotConfig {
     @Bean
     public ClientReplyKeyboardMarkupSource clientReplyKeyboardMarkupSource() {
         return new ClientReplyKeyboardMarkupSource();
+    }
+
+    @Bean
+    public ClientInlineKeyboardSource clientInlineKeyboardMarkupSource() {
+        return new ClientInlineKeyboardSource();
     }
 
 }

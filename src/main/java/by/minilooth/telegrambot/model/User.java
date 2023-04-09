@@ -54,6 +54,16 @@ public class User {
     @Builder.Default
     private Integer lastBotMessageId = 0;
 
+    @Column(name = "BotLastMessageDate")
+    private Integer botLastMessageDate;
+
+    @Column(name = "BotLastMessageEditable", columnDefinition = "TINYINT(1)")
+    private Boolean botLastMessageEditable;
+
+    @Column(name = "CurrentPage")
+    private Integer currentPage;
+
+
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -62,4 +72,7 @@ public class User {
                 inverseJoinColumns = {@JoinColumn(name = "client_id", referencedColumnName = "id")})
     private Client client;
 
+    public Boolean hasLastBotMessage() {
+        return lastBotMessageId != null;
+    }
 }

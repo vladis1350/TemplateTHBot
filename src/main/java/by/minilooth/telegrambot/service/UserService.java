@@ -5,18 +5,18 @@ import java.util.Optional;
 
 import javax.transaction.Transactional;
 
+import by.minilooth.telegrambot.model.User;
+import by.minilooth.telegrambot.model.enums.Role;
+import by.minilooth.telegrambot.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import by.minilooth.telegrambot.model.User;
-import by.minilooth.telegrambot.model.enums.Role;
-import by.minilooth.telegrambot.repositories.UserRepository;
-
 @Service
 public class UserService {
-
-    @Autowired private UserRepository userRepository;
+    public final static Integer DEFAULT_PAGE = 1;
+    @Autowired
+    private UserRepository userRepository;
 
     @Transactional
     public void save(User user) {
@@ -39,13 +39,17 @@ public class UserService {
     }
 
     public User createUser(Update update, Role role) {
-        User user =  User.builder()
-                         .telegramId(update.getMessage().getFrom().getId().toString())
-                         .firstname(update.getMessage().getFrom().getFirstName())
-                         .lastname(update.getMessage().getFrom().getLastName())
-                         .username(update.getMessage().getFrom().getUserName())
-                         .role(role)
-                         .build();
+        User user = User.builder()
+                .telegramId(update.getMessage().getFrom().getId().toString())
+                .firstname(update.getMessage().getFrom().getFirstName())
+                .lastname(update.getMessage().getFrom().getLastName())
+                .username(update.getMessage().getFrom().getUserName())
+                .botLastMessageDate(0)
+                .lastBotMessageId(0)
+                .botLastMessageEditable(false)
+                .currentPage(DEFAULT_PAGE)
+                .role(role)
+                .build();
 
         this.save(user);
 
