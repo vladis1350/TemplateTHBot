@@ -1,4 +1,6 @@
 package by.minilooth.telegrambot.service;
+import by.minilooth.telegrambot.model.Client;
+import by.minilooth.telegrambot.model.enums.Districts;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -52,11 +54,20 @@ public class SheetsQuickstart {
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 
-    public List<List<Object>> getSpringCropsSown() throws IOException, GeneralSecurityException {
+    public List<List<Object>> getSpringCropsSown(Client client) throws IOException, GeneralSecurityException {
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 //        final String spreadsheetId = "17rWCf0nVbvP-8M1fwI3C3a5VAJOCttlIzVJEt5d9n9I";
         final String spreadsheetId = "1vbly904lHBysQxutUFrFUOjokeXTN2GbhqYA4zG9gU8";
-        final String range = "Сев яровых!A10:AO10";
+        String range = "";
+        if (client.getDistricts().equals(Districts.GLUSK)) {
+            range = "Сев яровых!A10:AO10";
+        } else if (client.getDistricts().equals(Districts.BOBRUISK)) {
+            range = "Сев яровых!A16:AO16";
+        } else if (client.getDistricts().equals(Districts.OSIPOVICHI)) {
+            range = "Сев яровых!A23:AO23";
+        } else if(client.getDistricts().equals(Districts.PUHOVICHI)) {
+            range = "Сев яровых!A32:AO32";
+        }
         Sheets service =
                 new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
                         .setApplicationName(APPLICATION_NAME)
@@ -71,11 +82,21 @@ public class SheetsQuickstart {
             return values;
         }
     }
-    public List<List<Object>> getReportField(String range) throws IOException, GeneralSecurityException {
+    public List<List<Object>> getReportField(Client client) throws IOException, GeneralSecurityException {
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         final String spreadsheetId = "1vbly904lHBysQxutUFrFUOjokeXTN2GbhqYA4zG9gU8";
-//        final String spreadsheetId = "17rWCf0nVbvP-8M1fwI3C3a5VAJOCttlIzVJEt5d9n9I";
-//        final String range = "Внесение!A11:X11";
+//        https://docs.google.com/spreadsheets/d/1PsLtqIknKq_wPoOwy8cm7-KJE-GUAMwcf4qquTTwp8E/edit?usp=sharing
+//        final String spreadsheetId = "1PsLtqIknKq_wPoOwy8cm7-KJE-GUAMwcf4qquTTwp8E";
+        String range = "";
+        if (client.getDistricts().equals(Districts.GLUSK)) {
+            range = "Внесение!A11:X11";
+        } else if (client.getDistricts().equals(Districts.BOBRUISK)) {
+            range = "Внесение!A17:X17";
+        } else if (client.getDistricts().equals(Districts.OSIPOVICHI)) {
+            range = "Внесение!A24:X24";
+        } else if(client.getDistricts().equals(Districts.PUHOVICHI)) {
+            range = "Внесение!A33:X33";
+        }
         Sheets service =
                 new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
                         .setApplicationName(APPLICATION_NAME)
@@ -91,11 +112,20 @@ public class SheetsQuickstart {
         }
     }
 
-    public List<List<Object>> getReportMilk() throws IOException, GeneralSecurityException {
+    public List<List<Object>> getReportMilk(Client client) throws IOException, GeneralSecurityException {
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-        final String spreadsheetId = "18-gEYoMd9nT8vCUSQ_Pq7jrR2jHwjG6iWRc3PhFk40I";
+        final String spreadsheetId = "1n3uaVpR2dzQww7Whgtxep2xWAK3yKHWcCqSELk4mjFg";
 //        final String spreadsheetId = "14PCOAT4K-NDzqPzYpEZDWO3ocTxt5OZb1TK7L2TShIQ";
-        final String range = "Молоко!A13:T13";
+        String range = "";
+        if (client.getDistricts().equals(Districts.GLUSK)) {
+            range = "Молоко!A13:T13";
+        } else if (client.getDistricts().equals(Districts.BOBRUISK)) {
+            range = "Молоко!A19:T19";
+        } else if (client.getDistricts().equals(Districts.OSIPOVICHI)) {
+            range = "Молоко!A26:T26";
+        } else if(client.getDistricts().equals(Districts.PUHOVICHI)) {
+            range = "Молоко!A35:T35";
+        }
         Sheets service =
                 new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
                         .setApplicationName(APPLICATION_NAME)

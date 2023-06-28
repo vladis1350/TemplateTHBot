@@ -6,6 +6,8 @@ import by.minilooth.telegrambot.bot.keyboard.client.ClientInlineKeyboardSource;
 import by.minilooth.telegrambot.bot.keyboard.client.ClientReplyKeyboardMarkupSource;
 import by.minilooth.telegrambot.bot.message.MessageService;
 import by.minilooth.telegrambot.model.Client;
+import by.minilooth.telegrambot.model.enums.Districts;
+import by.minilooth.telegrambot.model.enums.TypeReport;
 import by.minilooth.telegrambot.model.glusk.FieldWorkGlusk;
 import by.minilooth.telegrambot.model.glusk.MilkGlusk;
 import by.minilooth.telegrambot.model.glusk.SowingGlusk;
@@ -120,9 +122,9 @@ public class ClientMessageService extends MessageService {
     public void sendReportMilk(ClientBotContext clientBotContext) throws GeneralSecurityException, IOException {
         Client client = clientBotContext.getClient();
 
-        List<List<Object>> values = sheetsQuickstart.getReportMilk();
+        List<List<Object>> values = sheetsQuickstart.getReportMilk(client);
         List<List<Object>> valuesMilkSort = sheetsQuickstart.getReportAll("МТС!B15:B17");
-        MilkGlusk milkGlusk = milkGluskService.checkMilk(values.get(0));
+        MilkGlusk milkGlusk = milkGluskService.checkMilk(values.get(0), client);
 
         messageSender.deleteBotLastMessage(client.getUser());
         if (checkEditableMessage(clientBotContext)) {
@@ -149,27 +151,34 @@ public class ClientMessageService extends MessageService {
     public void sendReportField(ClientBotContext clientBotContext) throws GeneralSecurityException, IOException, ParseException {
         Client client = clientBotContext.getClient();
 
-        List<List<Object>> valuesField = sheetsQuickstart.getReportField("Внесение!A11:X11");
-        List<List<Object>> valuesSpringCropsSown = sheetsQuickstart.getSpringCropsSown();
-        FieldWorkGlusk fieldWorkGlusk = fieldWorkGluskService.checkFieldWork(valuesField.get(0));
-        SowingGlusk sowingGlusk = sowingGluskService.checkSowingGlusk(valuesSpringCropsSown.get(0));
+        List<List<Object>> valuesField = sheetsQuickstart.getReportField(client);
+        List<List<Object>> valuesSpringCropsSown = sheetsQuickstart.getSpringCropsSown(client);
+        FieldWorkGlusk fieldWorkGlusk = fieldWorkGluskService.checkFieldWork(valuesField.get(0), client);
+        SowingGlusk sowingGlusk = sowingGluskService.checkSowingGlusk(valuesSpringCropsSown.get(0), client);
 
         messageSender.deleteBotLastMessage(client.getUser());
         if (checkEditableMessage(clientBotContext)) {
         } else {
             try {
-                String field = String.format(clientMessageSource.getMessage("ReportCropProduction"), fieldWorkGlusk.getRemovalOrganic(),
+                System.out.println(valuesField.get(0).get(5));
+                String field = String.format(clientMessageSource.getMessage("ReportCropProduction"),
+                        fieldWorkGlusk.getRemovalOrganic(),
                         fieldWorkGlusk.getRemovalOrganicPerDay(),
                         fieldWorkGlusk.getIntroductionOrganic(),
                         fieldWorkGlusk.getIntroductionOrganicPerDay(),
+                        valuesField.get(0).get(5),
                         fieldWorkGlusk.getPotassium(),
                         fieldWorkGlusk.getPotassiumPerDay(),
+                        valuesField.get(0).get(11),
                         fieldWorkGlusk.getPhosphorus(),
                         fieldWorkGlusk.getPhosphorusPerDay(),
+                        valuesField.get(0).get(15),
                         fieldWorkGlusk.getNitrogen(),
                         fieldWorkGlusk.getNitrogenPerDay(),
+                        valuesField.get(0).get(19),
                         fieldWorkGlusk.getPlowing(),
                         fieldWorkGlusk.getPlowingPerDay(),
+                        valuesField.get(0).get(23),
                         fieldWorkGlusk.getDressingHerbPotassium(),
                         fieldWorkGlusk.getDressingHerbPotassiumPerDay(),
                         fieldWorkGlusk.getDressingNitrogen(),
@@ -198,7 +207,8 @@ public class ClientMessageService extends MessageService {
                         sowingGlusk.getPeas(),
                         sowingGlusk.getPeasPerDay(),
                         valuesSpringCropsSown.get(0).get(36));//
-                Message message = messageSender.sendMessage(client.getTelegramId(), field + "\n\n" + springCropsSown,
+                String report = getReportName(client);
+                Message message = messageSender.sendMessage(client.getTelegramId(), report + "\n\n" + field + "\n\n" + springCropsSown,
                         clientReplyKeyboardMarkupSource.getMainMenuKeyboard());
 
                 updateLastBotMessageId(client.getUser(), message);
@@ -211,15 +221,15 @@ public class ClientMessageService extends MessageService {
     public void sendFullReport(ClientBotContext clientBotContext) throws GeneralSecurityException, IOException, ParseException {
         Client client = clientBotContext.getClient();
 
-        List<List<Object>> valuesMilk = sheetsQuickstart.getReportMilk();
-        List<List<Object>> valuesField = sheetsQuickstart.getReportField("Внесение!A11:X11");
-        List<List<Object>> valuesSpringCropsSown = sheetsQuickstart.getSpringCropsSown();
+        List<List<Object>> valuesMilk = sheetsQuickstart.getReportMilk(client);
+        List<List<Object>> valuesField = sheetsQuickstart.getReportField(client);
+        List<List<Object>> valuesSpringCropsSown = sheetsQuickstart.getSpringCropsSown(client);
         List<List<Object>> valuesMilkSort = sheetsQuickstart.getReportAll("МТС!B15:B17");
         List<List<Object>> valuesCompoundFeed = sheetsQuickstart.getReportAll("МТС!B8:B13");
         List<List<Object>> valuesMTC = sheetsQuickstart.getReportAll("МТС!A1:B6");
-        List<List<Object>> valuesFuel = sheetsQuickstart.getReportAll("МТС!B19:B20");
-        FieldWorkGlusk fieldWorkGlusk = fieldWorkGluskService.checkFieldWork(valuesField.get(0));
-        SowingGlusk sowingGlusk = sowingGluskService.checkSowingGlusk(valuesSpringCropsSown.get(0));
+        List<List<Object>> valuesFuel = sheetsQuickstart.getReportAll("МТС!B31:C31");
+        FieldWorkGlusk fieldWorkGlusk = fieldWorkGluskService.checkFieldWork(valuesField.get(0), client);
+        SowingGlusk sowingGlusk = sowingGluskService.checkSowingGlusk(valuesSpringCropsSown.get(0), client);
 
         messageSender.deleteBotLastMessage(client.getUser());
         if (checkEditableMessage(clientBotContext)) {
@@ -233,7 +243,7 @@ public class ClientMessageService extends MessageService {
                 }
                 String fuel = String.format(clientMessageSource.getMessage("fuel"),
                         valuesFuel.get(0).get(0),
-                        (int)(Integer.parseInt(valuesFuel.get(1).get(0).toString()) * 0.45));
+                        (int) (Integer.parseInt(valuesFuel.get(0).get(1).toString()) * 0.45));
                 String reportMTC = String.format(clientMessageSource.getMessage("MtcReport"), techMTC);
                 String compoundFeed = String.format(clientMessageSource.getMessage("CompoundFeed"),
                         valuesCompoundFeed.get(0).get(0),
@@ -293,9 +303,7 @@ public class ClientMessageService extends MessageService {
                         fieldWorkGlusk.getDressingHerbPotassiumPerDay(),
                         fieldWorkGlusk.getDressingHerbAmmonium(),
                         fieldWorkGlusk.getDressingHerbAmmoniumPerDay());
-                LocalDate date = LocalDate.now(); // получаем текущую дату
-                String currentDate = date.getDayOfMonth() + ".0" + date.getMonthValue() + "." + date.getYear();
-                String report = String.format(clientMessageSource.getMessage("REPORTDaily"), currentDate);
+                String report = getReportName(client);
                 Message message = messageSender.sendMessage(client.getTelegramId(), report + "\n\n" + field + "\n\n" + springCropsSown + "\n\n" + milk + "\n\n" + compoundFeed +
                                 "\n\n" + fuel + "\n\n" + reportMTC,
                         clientReplyKeyboardMarkupSource.getMainMenuKeyboard());
@@ -310,10 +318,10 @@ public class ClientMessageService extends MessageService {
     public void sendWeeklyReport(ClientBotContext clientBotContext) throws GeneralSecurityException, IOException, ParseException {
         Client client = clientBotContext.getClient();
 
-        FieldWorkGlusk fieldWorkGluskWeekly = fieldWorkGluskService.getFieldWorkByDate(8);
-        FieldWorkGlusk fieldWorkGluskDaily = fieldWorkGluskService.getFieldWorkByDate(0);
+        FieldWorkGlusk fieldWorkGluskWeekly = fieldWorkGluskService.getFieldWorkByDate(8, client.getDistricts());
+        FieldWorkGlusk fieldWorkGluskDaily = fieldWorkGluskService.getFieldWorkByDate(0, client.getDistricts());
 
-        WeeklyMilkGlusk weeklyMilkGlusk = weeklyMilkGluskService.checkWeeklyMilk();
+        WeeklyMilkGlusk weeklyMilkGlusk = weeklyMilkGluskService.checkWeeklyMilk(client);
 
         messageSender.deleteBotLastMessage(client.getUser());
         if (checkEditableMessage(clientBotContext)) {
@@ -353,7 +361,7 @@ public class ClientMessageService extends MessageService {
                         fieldWorkGluskDaily.getDressingHerbAmmonium(),
                         fieldWorkGluskDaily.getDressingHerbAmmonium() - fieldWorkGluskWeekly.getDressingHerbAmmonium());
                 LocalDate date = LocalDate.now(); // получаем текущую дату
-                String currentDate = date.getDayOfMonth()-1 + "." + date.getMonthValue() + "." + date.getYear();
+                String currentDate = date.getDayOfMonth() - 1 + "." + date.getMonthValue() + "." + date.getYear();
                 date = date.minusDays(7);
                 String currentWeeklyDate = date.getDayOfMonth() + "." + date.getMonthValue() + "." + date.getYear();
                 String report = String.format(clientMessageSource.getMessage("REPORTWeekly"), currentWeeklyDate, currentDate);
@@ -365,5 +373,63 @@ public class ClientMessageService extends MessageService {
                 LOGGER.error("Unable to sendFullReport to user: {}, reason: {}", client.getTelegramId(), ex.getLocalizedMessage());
             }
         }
+    }
+
+    public void sendSelectDistrict(ClientBotContext clientBotContext) {
+        Client client = clientBotContext.getClient();
+
+        messageSender.deleteBotLastMessage(client.getUser());
+        if (checkEditableMessage(clientBotContext)) {
+
+        } else {
+            try {
+                Message message = messageSender.sendMessage(client.getTelegramId(), clientMessageSource.getMessage("SelectDistrict"),
+                        clientInlineKeyboardSource.getSelectDistrictInlineMarkup());
+
+                updateLastBotMessageId(client.getUser(), message);
+            } catch (TelegramApiException ex) {
+                LOGGER.error("Unable to sendSelectDistrict to user: {}, reason: {}", client.getTelegramId(), ex.getLocalizedMessage());
+            }
+        }
+    }
+
+    public String getReportName(Client client) {
+        LocalDate date = LocalDate.now(); // получаем текущую дату
+        String currentDate = date.getDayOfMonth() + ".0" + date.getMonthValue() + "." + date.getYear();
+        String report = currentDate;
+        if (client.getDistricts().equals(Districts.GLUSK)) {
+            if (client.getTypeReport().equals(TypeReport.FULL)) {
+                return String.format(clientMessageSource.getMessage("REPORTDailyGlusk"), currentDate);
+            } else if (client.getTypeReport().equals(TypeReport.MILK)) {
+                return String.format(clientMessageSource.getMessage("REPORTMilkGlusk"), currentDate);
+            } else if (client.getTypeReport().equals(TypeReport.FIELD)) {
+                return String.format(clientMessageSource.getMessage("REPORTFieldGlusk"), currentDate);
+            }
+        } else if (client.getDistricts().equals(Districts.BOBRUISK)) {
+            if (client.getTypeReport().equals(TypeReport.FULL)) {
+                return String.format(clientMessageSource.getMessage("REPORTDailyBobr"), currentDate);
+            } else if (client.getTypeReport().equals(TypeReport.MILK)) {
+                return String.format(clientMessageSource.getMessage("REPORTMilkBobr"), currentDate);
+            } else if (client.getTypeReport().equals(TypeReport.FIELD)) {
+                return String.format(clientMessageSource.getMessage("REPORTFieldBobr"), currentDate);
+            }
+        } else if (client.getDistricts().equals(Districts.OSIPOVICHI)) {
+            if (client.getTypeReport().equals(TypeReport.FULL)) {
+                return String.format(clientMessageSource.getMessage("REPORTDailyOsip"), currentDate);
+            } else if (client.getTypeReport().equals(TypeReport.MILK)) {
+                return String.format(clientMessageSource.getMessage("REPORTMilkOsip"), currentDate);
+            } else if (client.getTypeReport().equals(TypeReport.FIELD)) {
+                return String.format(clientMessageSource.getMessage("REPORTFieldOsip"), currentDate);
+            }
+        } else if (client.getDistricts().equals(Districts.PUHOVICHI)) {
+            if (client.getTypeReport().equals(TypeReport.FULL)) {
+                return String.format(clientMessageSource.getMessage("REPORTDailyPuh"), currentDate);
+            } else if (client.getTypeReport().equals(TypeReport.MILK)) {
+                return String.format(clientMessageSource.getMessage("REPORTMilkPuh"), currentDate);
+            } else if (client.getTypeReport().equals(TypeReport.FIELD)) {
+                return String.format(clientMessageSource.getMessage("REPORTFieldPuh"), currentDate);
+            }
+        }
+        return report;
     }
 }

@@ -12,6 +12,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import by.minilooth.telegrambot.bot.state.ClientBotState;
+import by.minilooth.telegrambot.model.enums.Districts;
+import by.minilooth.telegrambot.model.enums.TypeReport;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -40,6 +42,14 @@ public class Client {
     @ToString.Exclude
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL)
     private User user;
+
+    @Column(name = "district", nullable = false)
+    @Enumerated(EnumType.ORDINAL)
+    private Districts districts;
+
+    @Column(name = "typeReport", nullable = false)
+    @Enumerated(EnumType.ORDINAL)
+    private TypeReport typeReport;
 
     public String getTelegramId() {
         if (this.user == null) {

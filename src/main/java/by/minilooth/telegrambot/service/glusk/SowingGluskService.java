@@ -1,5 +1,6 @@
 package by.minilooth.telegrambot.service.glusk;
 
+import by.minilooth.telegrambot.model.Client;
 import by.minilooth.telegrambot.model.glusk.MilkGlusk;
 import by.minilooth.telegrambot.model.glusk.SowingGlusk;
 import by.minilooth.telegrambot.repositories.glusk.SowingGluskRepository;
@@ -29,10 +30,10 @@ public class SowingGluskService {
     }
 
     @Transactional
-    public SowingGlusk getSowingGluskByDate(int days) {
+    public SowingGlusk getSowingGluskByDate(int days, Client client) {
         LocalDate date = LocalDate.now();
         date = date.minusDays(days);
-        SowingGlusk sowingGlusk = sowingGluskRepository.findSowingGluskByDate(date);
+        SowingGlusk sowingGlusk = sowingGluskRepository.findSowingGluskByDateAndDistrict(date, client.getDistricts());
         if (sowingGlusk != null) {
             return sowingGlusk;
         } else {
@@ -41,17 +42,29 @@ public class SowingGluskService {
     }
 
     @Transactional
-    public SowingGlusk checkSowingGlusk(List<Object> values) {
-        SowingGlusk sowingGlusk = sowingGluskRepository.findSowingGluskByDate(LocalDate.now());
+    public SowingGlusk checkSowingGlusk(List<Object> values, Client client) {
+        SowingGlusk sowingGlusk = sowingGluskRepository.findSowingGluskByDateAndDistrict(LocalDate.now(), client.getDistricts());
         if (sowingGlusk != null) {
+            sowingGlusk.setBarley(parseSowingGluskData(values.get(6)));
+            sowingGlusk.setBarleyPerDay(parseSowingGluskData(values.get(7)));
+            sowingGlusk.setWheat(parseSowingGluskData(values.get(10)));
+            sowingGlusk.setWheatPerDay(parseSowingGluskData(values.get(11)));
+            sowingGlusk.setTriticale(parseSowingGluskData(values.get(14)));
+            sowingGlusk.setTriticalePerDay(parseSowingGluskData(values.get(15)));
+            sowingGlusk.setOat(parseSowingGluskData(values.get(18)));
+            sowingGlusk.setOatPerDay(parseSowingGluskData(values.get(19)));
+            sowingGlusk.setPeas(parseSowingGluskData(values.get(34)));
+            sowingGlusk.setPeasPerDay(parseSowingGluskData(values.get(35)));
+            sowingGlusk.setAnnualHerbs(parseSowingGluskData(values.get(38)));
+            sowingGlusk.setAnnualHerbsPerDay(parseSowingGluskData(values.get(39)));
             return sowingGlusk;
         } else {
-            return  createSowingGlusk(values);
+            return  createSowingGlusk(values, client);
         }
     }
 
     @Transactional
-    public SowingGlusk createSowingGlusk(List<Object> values) {
+    public SowingGlusk createSowingGlusk(List<Object> values, Client client) {
         SowingGlusk sowingGlusk = SowingGlusk.builder()
                 .date(LocalDate.now())
                 .barley(parseSowingGluskData(values.get(6)))
@@ -66,6 +79,7 @@ public class SowingGluskService {
                 .peasPerDay(parseSowingGluskData(values.get(35)))
                 .annualHerbs(parseSowingGluskData(values.get(38)))
                 .annualHerbsPerDay(parseSowingGluskData(values.get(39)))
+                .district(client.getDistricts())
                 .build();
 
         save(sowingGlusk);

@@ -48,4 +48,45 @@ public class ClientInlineKeyboardSource extends InlineKeyboardSource {
         return inlineKeyboardMarkup;
     }
 
+    public InlineKeyboardMarkup getSelectDistrictInlineMarkup() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+
+        InlineKeyboardButton buttonGlusk = new InlineKeyboardButton();
+        InlineKeyboardButton buttonBobr = new InlineKeyboardButton();
+        InlineKeyboardButton buttonOsip = new InlineKeyboardButton();
+        InlineKeyboardButton buttonPuh = new InlineKeyboardButton();
+
+        buttonGlusk.setCallbackData("getGluskReport");
+        buttonGlusk.setText("Глусский район");
+
+        buttonBobr.setCallbackData("getBobrReport");
+        buttonBobr.setText("Бобруйский район");
+
+        buttonOsip.setCallbackData("getOsipReport");
+        buttonOsip.setText("Осиповичский район");
+
+        buttonPuh.setCallbackData("getPuhReport");
+        buttonPuh.setText("Пуховичский район");
+
+        List<InlineKeyboardButton> firstKeyboardButtonRow1 = new ArrayList<>();
+        List<InlineKeyboardButton> firstKeyboardButtonRow2 = new ArrayList<>();
+        List<InlineKeyboardButton> firstKeyboardButtonRow3 = new ArrayList<>();
+        List<InlineKeyboardButton> firstKeyboardButtonRow4 = new ArrayList<>();
+        firstKeyboardButtonRow1.add(buttonGlusk);
+        firstKeyboardButtonRow2.add(buttonBobr);
+        firstKeyboardButtonRow3.add(buttonOsip);
+        firstKeyboardButtonRow4.add(buttonPuh);
+
+        List<List<InlineKeyboardButton>> keyboardRows = new ArrayList<>();
+
+        keyboardRows.add(firstKeyboardButtonRow1);
+        keyboardRows.add(firstKeyboardButtonRow2);
+        keyboardRows.add(firstKeyboardButtonRow3);
+        keyboardRows.add(firstKeyboardButtonRow4);
+
+        inlineKeyboardMarkup.setKeyboard(keyboardRows);
+
+        return inlineKeyboardMarkup;
+    }
+
 }

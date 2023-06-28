@@ -5,6 +5,8 @@ import by.minilooth.telegrambot.bot.message.client.ClientMessageService;
 import by.minilooth.telegrambot.exception.ClientBotStateException;
 import by.minilooth.telegrambot.exception.ClientNotFoundException;
 import by.minilooth.telegrambot.bot.api.BotState;
+import by.minilooth.telegrambot.model.enums.Districts;
+import by.minilooth.telegrambot.model.enums.TypeReport;
 import com.vdurmont.emoji.EmojiParser;
 import lombok.Setter;
 
@@ -40,7 +42,59 @@ public enum ClientBotState implements BotState<ClientBotState, ClientBotContext>
         @Override public void handleText(ClientBotContext botContext) throws ClientBotStateException {
             switch (EmojiParser.removeAllEmojis(botContext.getUpdate().getMessage().getText())) {
                 case "Получить отчёт":
+                    nextState = SelectDistrict;
+                    break;
+                default:
+                    nextState = MainMenu;
+                    break;
+            }
+        }
+
+        @Override public ClientBotState nextState() {
+            return nextState;
+        }
+
+        @Override public ClientBotState rootState() {
+            return MainMenu;
+        }
+    },
+
+    SelectDistrict(true) {
+        private ClientBotState nextState = null;
+
+        @Override public void enter(ClientBotContext botContext) {
+            clientMessageService.sendSelectDistrict(botContext);
+        }
+
+        @Override
+        public void handleCallbackQuery(ClientBotContext botContext) {
+            String userAnswer = botContext.getUpdate().getCallbackQuery().getData();
+            switch (EmojiParser.removeAllEmojis(userAnswer)) {
+                case "getGluskReport":
+                    botContext.getClient().setDistricts(Districts.GLUSK);
                     nextState = GetReport;
+                    break;
+                case "getBobrReport":
+                    botContext.getClient().setDistricts(Districts.BOBRUISK);
+                    nextState = GetReport;
+                    break;
+                case "getOsipReport":
+                    botContext.getClient().setDistricts(Districts.OSIPOVICHI);
+                    nextState = GetReport;
+                    break;
+                case "getPuhReport":
+                    botContext.getClient().setDistricts(Districts.PUHOVICHI);
+                    nextState = GetReport;
+                    break;
+                default:
+                    nextState = MainMenu;
+                    break;
+            }
+        }
+        @Override public void handleText(ClientBotContext botContext) throws ClientBotStateException {
+            switch (EmojiParser.removeAllEmojis(botContext.getUpdate().getMessage().getText())) {
+                case "Получить отчёт":
+                    nextState = SelectDistrict;
                     break;
                 default:
                     nextState = MainMenu;
@@ -67,7 +121,7 @@ public enum ClientBotState implements BotState<ClientBotState, ClientBotContext>
         @Override public void handleText(ClientBotContext botContext) throws ClientBotStateException {
             switch (EmojiParser.removeAllEmojis(botContext.getUpdate().getMessage().getText())) {
                 case "Получить отчёт":
-                    nextState = GetReport;
+                    nextState = SelectDistrict;
                     break;
                 default:
                     nextState = MainMenu;
@@ -80,15 +134,19 @@ public enum ClientBotState implements BotState<ClientBotState, ClientBotContext>
             String userAnswer = botContext.getUpdate().getCallbackQuery().getData();
             switch (EmojiParser.removeAllEmojis(userAnswer)) {
                 case "getReportMilk":
+                    botContext.getClient().setTypeReport(TypeReport.MILK);
                     nextState = GetReportMilk;
                     break;
                 case "getReportField":
+                    botContext.getClient().setTypeReport(TypeReport.FIELD);
                     nextState = GetReportField;
                     break;
                 case "getFullReport":
+                    botContext.getClient().setTypeReport(TypeReport.FULL);
                     nextState = GetFullReport;
                     break;
                 case "getWeeklyReport":
+                    botContext.getClient().setTypeReport(TypeReport.WEEKLY);
                     nextState = GetWeeklyReport;
                     break;
                 default:
@@ -119,7 +177,7 @@ public enum ClientBotState implements BotState<ClientBotState, ClientBotContext>
         @Override public void handleText(ClientBotContext botContext) throws ClientBotStateException {
             switch (EmojiParser.removeAllEmojis(botContext.getUpdate().getMessage().getText())) {
                 case "Получить отчёт":
-                    nextState = GetReport;
+                    nextState = SelectDistrict;
                     break;
                 default:
                     nextState = MainMenu;
@@ -150,7 +208,7 @@ public enum ClientBotState implements BotState<ClientBotState, ClientBotContext>
         @Override public void handleText(ClientBotContext botContext) throws ClientBotStateException {
             switch (EmojiParser.removeAllEmojis(botContext.getUpdate().getMessage().getText())) {
                 case "Получить отчёт":
-                    nextState = GetReport;
+                    nextState = SelectDistrict;
                     break;
                 default:
                     nextState = MainMenu;
@@ -181,7 +239,7 @@ public enum ClientBotState implements BotState<ClientBotState, ClientBotContext>
         @Override public void handleText(ClientBotContext botContext) throws ClientBotStateException {
             switch (EmojiParser.removeAllEmojis(botContext.getUpdate().getMessage().getText())) {
                 case "Получить отчёт":
-                    nextState = GetReport;
+                    nextState = SelectDistrict;
                     break;
                 default:
                     nextState = MainMenu;
@@ -212,7 +270,7 @@ public enum ClientBotState implements BotState<ClientBotState, ClientBotContext>
         @Override public void handleText(ClientBotContext botContext) throws ClientBotStateException {
             switch (EmojiParser.removeAllEmojis(botContext.getUpdate().getMessage().getText())) {
                 case "Получить отчёт":
-                    nextState = GetReport;
+                    nextState = SelectDistrict;
                     break;
                 default:
                     nextState = MainMenu;

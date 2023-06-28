@@ -1,5 +1,6 @@
 package by.minilooth.telegrambot.service.glusk;
 
+import by.minilooth.telegrambot.model.Client;
 import by.minilooth.telegrambot.model.glusk.MilkGlusk;
 import by.minilooth.telegrambot.repositories.glusk.MilkGluskRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +30,10 @@ public class MilkGluskService {
     }
 
     @Transactional
-    public MilkGlusk getMilkByDate(int days) {
+    public MilkGlusk getMilkByDate(int days, Client client) {
         LocalDate date = LocalDate.now();
         date = date.minusDays(days);
-        MilkGlusk milkGlusk = milkGluskRepository.findMilkByDate(date);
+        MilkGlusk milkGlusk = milkGluskRepository.findMilkByDateAndDistrict(date, client.getDistricts());
         if (milkGlusk != null) {
             return milkGlusk;
         } else {
@@ -41,12 +42,12 @@ public class MilkGluskService {
     }
 
     @Transactional
-    public List<MilkGlusk> getMilkByPeriod(int after, int before) {
+    public List<MilkGlusk> getMilkByPeriod(int after, int before, Client client) {
         LocalDate dateAfter = LocalDate.now();
         LocalDate dateBefore = LocalDate.now();
         dateAfter = dateAfter.minusDays(after);
         dateBefore = dateBefore.plusDays(before);
-        List<MilkGlusk> milkGlusks = milkGluskRepository.getAllByDateAfterAndDateBefore(dateAfter, dateBefore);
+        List<MilkGlusk> milkGlusks = milkGluskRepository.getAllByDateAfterAndDateBeforeAndDistrict(dateAfter, dateBefore, client.getDistricts());
         if (!milkGlusks.isEmpty()) {
             return milkGlusks;
         } else {
@@ -55,8 +56,8 @@ public class MilkGluskService {
     }
 
     @Transactional
-    public MilkGlusk checkMilk(List<Object> values) {
-        MilkGlusk milkGlusk = milkGluskRepository.findMilkByDate(LocalDate.now());
+    public MilkGlusk checkMilk(List<Object> values, Client client) {
+        MilkGlusk milkGlusk = milkGluskRepository.findMilkByDateAndDistrict(LocalDate.now(), client.getDistricts());
         if (milkGlusk != null) {
             milkGlusk.setProduction(parseMilkData(values.get(4)));
             milkGlusk.setDifferenceProd(parseMilkData(values.get(7)));
@@ -68,12 +69,12 @@ public class MilkGluskService {
             milkGlusk.setProductionBeginningMonth(values.get(9).toString().replaceAll("[^0-9-,]", ""));
             return milkGlusk;
         } else {
-            return createMilk(values);
+            return createMilk(values, client);
         }
     }
 
     @Transactional
-    public MilkGlusk createMilk(List<Object> values) {
+    public MilkGlusk createMilk(List<Object> values, Client client) {
         MilkGlusk milkGlusk = MilkGlusk.builder()
                 .date(LocalDate.now())
                 .production(parseMilkData(values.get(4)))
@@ -84,6 +85,7 @@ public class MilkGluskService {
                 .milkOnHead(values.get(19).toString().replaceAll("[^0-9-,]", ""))
                 .milkOnHeadBeginningMonth(values.get(15).toString().replaceAll("[^0-9-,]", ""))
                 .productionBeginningMonth(values.get(9).toString().replaceAll("[^0-9-,]", ""))
+                .district(client.getDistricts())
                 .build();
 
         save(milkGlusk);

@@ -1,5 +1,6 @@
 package by.minilooth.telegrambot.model.glusk;
 
+import by.minilooth.telegrambot.model.enums.Districts;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,5 +39,7 @@ public class MilkGlusk {
     private String milkOnHeadBeginningMonth;
     @Column(name = "productionBeginningMonth")
     private String productionBeginningMonth;
+    @Column(name = "district")
+    private Districts district;
 
 }

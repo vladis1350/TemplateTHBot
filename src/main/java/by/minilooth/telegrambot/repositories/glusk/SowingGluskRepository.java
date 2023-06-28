@@ -1,5 +1,6 @@
 package by.minilooth.telegrambot.repositories.glusk;
 
+import by.minilooth.telegrambot.model.enums.Districts;
 import by.minilooth.telegrambot.model.glusk.MilkGlusk;
 import by.minilooth.telegrambot.model.glusk.SowingGlusk;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,5 +10,5 @@ import java.time.LocalDate;
 
 @Repository
 public interface SowingGluskRepository extends JpaRepository<SowingGlusk, Long> {
-    SowingGlusk findSowingGluskByDate(LocalDate date);
+    SowingGlusk findSowingGluskByDateAndDistrict(LocalDate date, Districts districts);
 }

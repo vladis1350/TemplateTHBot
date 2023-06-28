@@ -1,5 +1,6 @@
 package by.minilooth.telegrambot.model.glusk;
 
+import by.minilooth.telegrambot.model.enums.Districts;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,6 +23,9 @@ public class FieldWorkGlusk {
 
     @Column(name = "date")
     private LocalDate date;
+
+    @Column(name = "district")
+    private Districts district;
 
     @Column(name = "removalOrganic")
     private int removalOrganic;  // вывезено органики всего

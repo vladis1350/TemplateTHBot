@@ -1,5 +1,7 @@
 package by.minilooth.telegrambot.service.glusk;
 
+import by.minilooth.telegrambot.model.Client;
+import by.minilooth.telegrambot.model.enums.Districts;
 import by.minilooth.telegrambot.model.glusk.FieldWorkGlusk;
 import by.minilooth.telegrambot.repositories.glusk.FieldWorkGluskRepository;
 import by.minilooth.telegrambot.service.SheetsQuickstart;
@@ -35,10 +37,10 @@ public class FieldWorkGluskService {
     }
 
     @Transactional
-    public FieldWorkGlusk checkFieldWork(List<Object> values) throws GeneralSecurityException, IOException {
-        FieldWorkGlusk fieldWorkGlusk = fieldWorkGluskRepository.findFieldWorkByDate(LocalDate.now());
+    public FieldWorkGlusk checkFieldWork(List<Object> values, Client client) throws GeneralSecurityException, IOException {
+        FieldWorkGlusk fieldWorkGlusk = fieldWorkGluskRepository.findFieldWorkByDateAndDistrict(LocalDate.now(), client.getDistricts());
         List<List<Object>> valuesTopDressing = sheetsQuickstart.getReportAll("Подкормка!J12:S12");
-        FieldWorkGlusk yesterday = getFieldWorkByDate(1);
+        FieldWorkGlusk yesterday = getFieldWorkByDate(1, client.getDistricts());
         int introductionOrganic = 0;
         int removalOrganic = 0;
         int introductionToday = 0;
@@ -70,15 +72,15 @@ public class FieldWorkGluskService {
             fieldWorkGlusk.setDressingHerbAmmoniumPerDay(parseFieldWorkData(valuesTopDressing.get(0).get(9)));
             return fieldWorkGlusk;
         } else {
-            return createFieldWork(values);
+            return createFieldWork(values, client);
         }
     }
 
     @Transactional
-    public FieldWorkGlusk getFieldWorkByDate(int days) {
+    public FieldWorkGlusk getFieldWorkByDate(int days, Districts districts) {
         LocalDate date = LocalDate.now();
         date = date.minusDays(days);
-        FieldWorkGlusk fieldWorkGlusk = fieldWorkGluskRepository.findFieldWorkByDate(date);
+        FieldWorkGlusk fieldWorkGlusk = fieldWorkGluskRepository.findFieldWorkByDateAndDistrict(date, districts);
         if (fieldWorkGlusk != null) {
             return fieldWorkGlusk;
         } else {
@@ -99,9 +101,9 @@ public class FieldWorkGluskService {
     }
 
     @Transactional
-    public FieldWorkGlusk createFieldWork(List<Object> values) throws GeneralSecurityException, IOException {
+    public FieldWorkGlusk createFieldWork(List<Object> values, Client client) throws GeneralSecurityException, IOException {
         List<List<Object>> valuesTopDressing = sheetsQuickstart.getReportAll("Подкормка!J12:S12");
-        FieldWorkGlusk yesterday = getFieldWorkByDate(1);
+        FieldWorkGlusk yesterday = getFieldWorkByDate(1, client.getDistricts());
         int introductionOrganic = 0;
         int removalOrganic = 0;
         int introductionToday = 0;
@@ -132,6 +134,7 @@ public class FieldWorkGluskService {
                 .dressingHerbPotassiumPerDay(parseFieldWorkData(valuesTopDressing.get(0).get(5)))
                 .dressingHerbAmmonium(parseFieldWorkData(valuesTopDressing.get(0).get(8)))
                 .dressingHerbAmmoniumPerDay(parseFieldWorkData(valuesTopDressing.get(0).get(9)))
+                .district(client.getDistricts())
                 .build();
 
         save(fieldWorkGlusk);

@@ -1,5 +1,6 @@
 package by.minilooth.telegrambot.service.glusk;
 
+import by.minilooth.telegrambot.model.Client;
 import by.minilooth.telegrambot.model.glusk.MilkGlusk;
 import by.minilooth.telegrambot.model.glusk.WeeklyMilkGlusk;
 import by.minilooth.telegrambot.repositories.glusk.WeeklyMilkGluskRepository;
@@ -33,17 +34,17 @@ public class WeeklyMilkGluskService {
     }
 
     @Transactional
-    public WeeklyMilkGlusk checkWeeklyMilk() {
+    public WeeklyMilkGlusk checkWeeklyMilk(Client client) {
         WeeklyMilkGlusk weeklyMilkGlusk = weeklyMilkGluskRepository.getWeeklyMilkGluskByDate(LocalDate.now());
         if (weeklyMilkGlusk != null) {
             return weeklyMilkGlusk;
-        } else return createWeeklyMilk();
+        } else return createWeeklyMilk(client);
 
     }
 
     @Transactional
-    public WeeklyMilkGlusk createWeeklyMilk() {
-        List<MilkGlusk> milkGluskList = milkGluskService.getMilkByPeriod(8, 0);
+    public WeeklyMilkGlusk createWeeklyMilk(Client client) {
+        List<MilkGlusk> milkGluskList = milkGluskService.getMilkByPeriod(8, 0, client);
         LocalDate localDate = LocalDate.now();
         localDate = localDate.minusDays(7);
         WeeklyMilkGlusk lastWeekly = weeklyMilkGluskRepository.getWeeklyMilkGluskByDate(localDate);
@@ -74,7 +75,6 @@ public class WeeklyMilkGluskService {
             weeklyMilkGlusk.setWeeklyImplement(implement);
             weeklyMilkGlusk.setWeeklyMarketability(String.valueOf(marketability / milkGluskList.size()));
             weeklyMilkGlusk.setWeeklyMilkOnHead(String.valueOf(milkOnHead));
-//            weeklyMilkGlusk.setLastWeeklyMilkOnHead(String.valueOf(0));
             weeklyMilkGlusk.setIsLastWeek(true);
             this.save(weeklyMilkGlusk);
         } else {
